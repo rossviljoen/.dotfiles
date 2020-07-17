@@ -1,0 +1,4 @@
+#!/bin/sh
+hsetroot -solid '#eee8d5'
+picom -b
+xrdb -load ~/.config/X11/Xresources
