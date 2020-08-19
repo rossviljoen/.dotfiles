@@ -1,5 +1,5 @@
 Config {
-         font = "xft:xos4 Terminus:size=10:bold:antialias=false"
+         font = "xft:xos4 Terminus:size=10:antialias=true"
        -- font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
        , bgColor = "#eee8d5"
        , fgColor = "#657b83"
