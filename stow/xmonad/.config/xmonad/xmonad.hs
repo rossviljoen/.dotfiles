@@ -13,15 +13,19 @@ import XMonad.Hooks.SetWMName
 import System.IO
 
 main = do
-  xmprocl <- spawnPipe "xmobar -x 0"
-  xmprocr <- spawnPipe "xmobar -x 1"
+  xmprocl <- spawnPipe "xmobar --screen=0"
+  xmprocr <- spawnPipe "xmobar --screen=1"
   xmonad $ docks myConfig
     { logHook = let log screen handle = dynamicLogWithPP . marshallPP screen . myXmobarPP $ handle
                     in log 0 xmprocl >> log 1 xmprocr
     }
 
+-- Set number of screens
+numScreens = 1
+
 virtualWorkspaces = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
-myWorkspaces = withScreens 2 virtualWorkspaces
+-- use IndependentScreens to create per-screen workspaces
+myWorkspaces = withScreens numScreens virtualWorkspaces
 
 myLayoutHook = spacingRaw True (Border 8 0 8 8) True (Border 8 8 8 8) True $
   onWorkspaces (map (marshall 1) virtualWorkspaces) (Mirror tall ||| tall ||| Full) $ 

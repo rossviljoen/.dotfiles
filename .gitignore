@@ -1,0 +1,8 @@
+# Haskell binaries
+*.o
+*.hi
+stow/xmonad/.local
+
+# Emacs temp files
+\#*\#
+
