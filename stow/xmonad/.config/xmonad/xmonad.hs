@@ -12,10 +12,11 @@ import System.IO
 
 main = do
   xmprocl <- spawnPipe "xmobar --screen=0"
-  xmprocr <- spawnPipe "xmobar --screen=1"
+  -- xmprocr <- spawnPipe "xmobar --screen=1"
   xmonad $ docks myConfig
     { logHook = let log screen handle = dynamicLogWithPP . marshallPP screen . myXmobarPP $ handle
-                    in log 0 xmprocl >> log 1 xmprocr
+                    in log 0 xmprocl
+                       -- >> log 1 xmprocr
     }
 
 -- Set number of screens
