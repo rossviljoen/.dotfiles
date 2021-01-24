@@ -136,8 +136,8 @@
   (pdf-tools-install))
 (use-package transpose-frame)
 (use-package smooth-scrolling
-	     :config
-	     (smooth-scrolling-mode t))
+        :config
+        (smooth-scrolling-mode t))
 (use-package sudo-edit)
 (use-package base16-theme
   :config

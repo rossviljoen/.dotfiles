@@ -6,9 +6,7 @@ import XMonad.Layout.PerWorkspace
 import qualified XMonad.StackSet as W
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
-import XMonad.Config.Kde
 import XMonad.Layout.IndependentScreens
-import XMonad.Layout.BinarySpacePartition
 import XMonad.Hooks.SetWMName
 import System.IO
 
@@ -36,6 +34,7 @@ myLayoutHook = spacingRaw True (Border 8 0 8 8) True (Border 8 8 8 8) True $
     tall = Tall 1 (3/100) (1/2)
 
 -- Rebind Mod to the Windows key
+myModMask :: KeyMask
 myModMask = mod4Mask
                
 myXmobarPP handle = def
@@ -64,7 +63,7 @@ myKeys =
   , ((myModMask .|. mod1Mask, xK_s), spawn "systemctl suspend &")
   , ((myModMask .|. mod1Mask, xK_l), spawn "dm-tool lock")
   , ((myModMask, xK_b), sendMessage ToggleStruts)
-  , ((0, xK_F9), spawn "emacsclient -c -n -e '(switch-to-buffer nil)'")
+  , ((0, xK_F9), spawn "$EDITOR")
   , ((0, xK_F10), spawn "firefox")
   -- , ((myModMask .|. mod1Mask, xK_l), spawn "loginctl lock-session")
   ] ++
