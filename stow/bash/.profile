@@ -24,3 +24,4 @@ export PATH=$PATH:$HOME/programming/go/bin:$HOME/.config/emacs/bin
 export GOPATH=$HOME/programming/go:$HOME/programming/titan/gocode
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
+export MAKEFLAGS="-j$(nproc)"
