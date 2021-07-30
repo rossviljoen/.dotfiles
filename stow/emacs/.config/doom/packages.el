@@ -53,3 +53,7 @@
 
 (package! jupyter)
 (package! code-cells)
+
+(package! lsp-julia :recipe (:host github :repo "gdkrmr/lsp-julia"))
+
+(package! julia-formatter :recipe (:host nil :repo "https://codeberg.org/FelipeLema/julia-formatter.el.git"))

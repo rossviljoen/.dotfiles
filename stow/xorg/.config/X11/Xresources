@@ -43,5 +43,11 @@
 *color21:   base06
 
 URxvt.scrollBar: false
+! On the fly resizing
+! https://wiki.archlinux.org/title/rxvt-unicode#Changing_font_size_on_the_fly
+URxvt.font: xft:Inconsolata:pixelsize=12
+URxvt.perl-ext-common: resize-font
+URxvt.iso14755: false
+URxvt.iso14755_52: false
 
 Xcursor.size: 12
