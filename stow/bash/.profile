@@ -5,7 +5,7 @@ export VISUAL="emacs"
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
-export PROGS=$HOME/.progs
+export PROG=$HOME/prog
 
 # Use XDG directories for various programs
 export HISTFILE=$XDG_DATA_HOME/bash/history
@@ -16,8 +16,8 @@ export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
 export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
 
 # Other non-XDG home dirs
-export JULIA_DEPOT_PATH=$PROGS/julia
-export GOPATH=$PROGS/go
+export JULIA_DEPOT_PATH=$PROG/julia
+export GOPATH=$PROG/go
 
 # Try to get LightDM to use XDG directories (doesn't seem to work)
 export USERXSESSION=$XDG_CACHE_HOME/x11/xsession
