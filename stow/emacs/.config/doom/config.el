@@ -33,11 +33,8 @@
 (use-package! lsp-julia
   ;; N.B. Pkg.add LanguageServer and SymbolServer in Julia repl
   :config
-  (setq lsp-julia-default-environment "~/.julia/environments/v1.5")
-  (setq-hook! 'julia-mode-hook +format-with-lsp nil)
-
-
-  )
+  (setq lsp-julia-default-environment (concat (getenv "JULIA_DEPOT_PATH") "/environments/v1.6"))
+  (setq-hook! 'julia-mode-hook +format-with-lsp nil))
 
 ;; Doesn't work because of errors in formatter_service.jl?
 ;; (use-package! julia-formatter
@@ -84,6 +81,8 @@
   `(jit-lock-bounds ,beg . ,end))
 (advice-add #'jupyter-repl-font-lock-fontify-region
             :override #'jupyter-repl-font-lock-override)
+;; Needed for LaTeX and some other rich output
+(setq org-babel-jupyter-resource-directory (concat user-emacs-directory "jupyter"))
 
 (use-package! code-cells
   :hook ((julia-mode python-mode) . code-cells-mode)

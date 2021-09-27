@@ -14,6 +14,7 @@ export SSB_HOME=$XDG_DATA_HOME/zoom
 export IPYTHONDIR=$XDG_CONFIG_HOME/jupyter
 export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
 export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
+# export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 
 # Other non-XDG home dirs
 export JULIA_DEPOT_PATH=$PROG/julia
