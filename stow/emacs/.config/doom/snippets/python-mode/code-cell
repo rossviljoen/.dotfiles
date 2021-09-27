@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Code Cell
+# uuid: code-cell
+# key: %
+# condition: t
+# --
+# %%
+$0

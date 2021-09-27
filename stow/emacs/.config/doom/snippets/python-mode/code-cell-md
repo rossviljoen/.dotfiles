@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Code Cell Markdown
+# uuid: code-cell-md
+# key: %m
+# condition: t
+# --
+# %% [markdown]
+$0

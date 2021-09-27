@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: #+begin_src julia
+# uuid: julia
+# key: jl
+# condition: t
+# --
+#+begin_src julia
+`%`$0
+#+end_src
