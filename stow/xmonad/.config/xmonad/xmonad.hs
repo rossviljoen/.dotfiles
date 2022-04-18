@@ -12,15 +12,15 @@ import System.IO
 
 main = do
   xmprocl <- spawnPipe "xmobar --screen=0"
-  -- xmprocr <- spawnPipe "xmobar --screen=1"
+  xmprocr <- spawnPipe "xmobar --screen=1"
   xmonad $ docks myConfig
     { logHook = let log screen handle = dynamicLogWithPP . marshallPP screen . myXmobarPP $ handle
                     in log 0 xmprocl
-                       -- >> log 1 xmprocr
+                       >> log 1 xmprocr
     }
 
 -- Set number of screens
-numScreens = 1
+numScreens = 2
 
 virtualWorkspaces = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
 -- use IndependentScreens to create per-screen workspaces
@@ -77,7 +77,7 @@ myKeys =
     
     -- Switch to screen N, M-{w,e,r}
     [((m .|. myModMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0, 1, 2]
+        | (key, sc) <- zip [xK_w, xK_e, xK_r] [1, 0, 2]
     -- Move window to screen N
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
