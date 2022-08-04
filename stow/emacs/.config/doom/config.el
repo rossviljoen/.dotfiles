@@ -30,10 +30,15 @@
 
 (setq lsp-enable-folding t)
 (setq lsp-julia-package-dir nil)
+(use-package! eglot-jl
+  :config
+  (setq eglot-jl-depot (getenv "JULIA_DEPOT_PATH"))
+  (setq eglot-jl-language-server-project (concat (getenv "JULIA_DEPOT_PATH") "/environments/v1.7")))
+
 (use-package! lsp-julia
   ;; N.B. Pkg.add LanguageServer and SymbolServer in Julia repl
   :config
-  (setq lsp-julia-default-environment (concat (getenv "JULIA_DEPOT_PATH") "/environments/v1.6"))
+  (setq lsp-julia-default-environment (concat (getenv "JULIA_DEPOT_PATH") "/environments/v1.7"))
   (setq-hook! 'julia-mode-hook +format-with-lsp nil))
 
 ;; Doesn't work because of errors in formatter_service.jl?
