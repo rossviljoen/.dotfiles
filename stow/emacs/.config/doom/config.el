@@ -30,6 +30,11 @@
 
 (setq lsp-enable-folding t)
 (setq lsp-julia-package-dir nil)
+(use-package! eglot-jl
+  :config
+  (setq eglot-jl-depot (getenv "JULIA_DEPOT_PATH"))
+  (setq eglot-jl-language-server-project (concat (getenv "JULIA_DEPOT_PATH") "/environments/v1.7")))
+
 (use-package! lsp-julia
   ;; N.B. Pkg.add LanguageServer and SymbolServer in Julia repl
   :config
@@ -120,3 +125,7 @@
   ;;         ([remap jupyter-eval-line-or-region] .
   ;;          (lambda () (interactive)
   ;;            (code-cells-command 'jupyter-eval-region :use-region :pulse))))))
+
+
+;; Projectile.el config
+(setq projectile-project-search-path '("~/prog/"))

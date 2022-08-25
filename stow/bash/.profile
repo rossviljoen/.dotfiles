@@ -28,5 +28,11 @@ export ERRFILE=$XDG_CACHE_HOME/x11/xsession-errors
 
 export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin
 
+# Various hacks etc.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
 export MAKEFLAGS="-j$(nproc)"
+
+# This is needed to use Jax from Julia through PythonCall
+# see: https://github.com/JuliaPy/PyCall.jl/issues/722
+# https://github.com/JuliaPy/PyCall.jl/issues/990
+export LD_PRELOAD=/usr/lib64/libstdc++.so.6
