@@ -125,3 +125,7 @@
   ;;         ([remap jupyter-eval-line-or-region] .
   ;;          (lambda () (interactive)
   ;;            (code-cells-command 'jupyter-eval-region :use-region :pulse))))))
+
+
+;; Projectile.el config
+(setq projectile-project-search-path '("~/prog/"))
