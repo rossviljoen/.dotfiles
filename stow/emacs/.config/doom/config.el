@@ -77,15 +77,19 @@
          :map jupyter-repl-mode-map
          ;; This makes latex input work in the jupyter repl (should probably
          ;; make this Julia specific though)
-         (("TAB" . julia-latexsub-or-indent))))
+         (("TAB" . julia-latexsub-or-indent)))
+  :config
+  (setq jupyter-repl-echo-eval-p t))
 
-;; Hack to fix Jupyter REPL freezing:
-;; https://github.com/nnicandro/emacs-jupyter/issues/219
-(setq jupyter-repl-echo-eval-p t)
-(defun jupyter-repl-font-lock-override (_ignore beg end &optional verbose)
-  `(jit-lock-bounds ,beg . ,end))
-(advice-add #'jupyter-repl-font-lock-fontify-region
-            :override #'jupyter-repl-font-lock-override)
+
+;; ;; Hack to fix Jupyter REPL freezing:
+;; ;; https://github.com/nnicandro/emacs-jupyter/issues/219
+;; ;; Should be fixed now...
+;; (defun jupyter-repl-font-lock-override (_ignore beg end &optional verbose)
+;;   `(jit-lock-bounds ,beg . ,end))
+;; (advice-add #'jupyter-repl-font-lock-fontify-region
+;;             :override #'jupyter-repl-font-lock-override)
+
 ;; Needed for LaTeX and some other rich output
 (setq org-babel-jupyter-resource-directory (concat user-emacs-directory "jupyter"))
 
