@@ -696,3 +696,17 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
+
+
+;; ---------------------------------------------------------------------------------------
+;;; Messaging
+;; ---------------------------------------------------------------------------------------
+
+;;;; Elfeed (RSS)
+;;   ============
+
+(use-package elfeed
+  :init (setq elfeed-feeds
+              '(("https://codingquark.com/feed.xml" emacs)
+                ("https://ag91.github.io/rss.xml" emacs)
+                ("https://sqrtminusone.xyz/posts/index.xml" emacs))))
