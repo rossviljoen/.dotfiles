@@ -18,7 +18,23 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+(straight-use-package 'use-package)
 
+
+;; if we're in guix, some packages need to be installed by guix, not straight
+(defvar is-guix-system (and (eq system-type 'gnu/linux)
+			                (file-exists-p "/etc/os-release")
+                            (with-temp-buffer
+                              (insert-file-contents "/etc/os-release")
+                              (search-forward "ID=guix" nil t))
+                            t))
+
+;; TODO: not sure this should be necessary?
+;; (if is-guix-system
+    ;; (add-to-list 'load-path "/home/ross/.guix-profile/share/emacs/site-lisp"))
+;; (load "subdirs")
+
+;; (load-file (expand-file-name "exwm-config.el" user-emacs-directory))
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Built-in Settings
@@ -49,6 +65,8 @@
 
 (delete-selection-mode +1)
 (electric-pair-mode t) ; auto close parens
+
+(setq native-comp-async-report-warnings-errors nil)
 
 ;;;; Better-defaults
 ;;   ===============
@@ -180,15 +198,24 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 
 (use-package sudo-edit)
 
-(use-package pdf-tools
-  :config
-  (pdf-tools-install))
+;; ;; TODO: better way to integrate straight & guix?
+(if is-guix-system
+    (use-package pdf-tools
+      :straight (pdf-tools :local-repo "/home/ross/.guix-profile/share/emacs/site-lisp/pdf-tools-1.1.0")
+      :config
+      (pdf-tools-install))
+  (use-package pdf-tools
+    :config
+    (pdf-tools-install)))
 
+
+(setq is-guix-system nil)
 (use-package magit
   :bind
   (("C-x g" . magit-status)))
 
 (use-package rainbow-mode)
+
 
 ;;;; Vterm
 ;;   =======
@@ -198,6 +225,17 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
   ("M-<return>" . vterm-toggle)
   ("S-M-<return>" . vterm-toggle-cd))
 
+
+;; ;;;; Perspective
+;; ;;   ===========
+;; (use-package perspective
+;;   :bind (("C-x k" . persp-kill-buffer*))
+;;   :custom
+;;   (persp-mode-prefix-key (kbd "C-x x"))
+;;   :init
+;;   (persp-mode))
+
+
 ;;;; Eglot
 ;;   =======
 (use-package eglot
@@ -206,6 +244,7 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
   ;; make sure eglot works for python-ts-mode
   ;; TODO: make this idempotent
   (setcar (assoc 'python-mode eglot-server-programs) 'python-base-mode))
+
 
 ;;;; Jupyter
 ;;   =======
@@ -367,7 +406,8 @@ point reaches the beginning or end of the buffer, stop there."
 
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
-  )
+  :bind (("C-<return>" . vertico-exit-input) ;; insert exact text without completion
+         ))
 
 ;; A few more useful configurations...
 ;; taken from https://github.com/minad/vertico
@@ -523,8 +563,12 @@ point reaches the beginning or end of the buffer, stop there."
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
+   ;; consult--source-buffer :hidden t :default nil  ; uncomment if using perspective.el
+   ;; consult--source-buffer :default nil
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
+
+  ;; (add-to-list 'consult-buffer-sources persp-consult-source)  ; uncomment if using perspective.el
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
@@ -709,4 +753,13 @@ point reaches the beginning or end of the buffer, stop there."
   :init (setq elfeed-feeds
               '(("https://codingquark.com/feed.xml" emacs)
                 ("https://ag91.github.io/rss.xml" emacs)
-                ("https://sqrtminusone.xyz/posts/index.xml" emacs))))
+                ("https://sqrtminusone.xyz/posts/index.xml" emacs)
+                ("http://verisimilitudes.net/rss.xml" programming)
+                ("http://ngnghm.github.io/feeds/all.rss.xml" programming)
+                ("http://www.loper-os.org/?feed=rss" programming))))
+
+
+;; ---------------------------------------------------------------------------------------
+;;; Window Manager
+;; ---------------------------------------------------------------------------------------
+;; (use-package perspective-exwm)
