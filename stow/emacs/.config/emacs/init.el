@@ -104,7 +104,7 @@
 
 ;;;; Tramp
 ;;   =====
-(setq tramp-auto-save-directory "~/.emacs.d/var/tramp/")  ;; TODO: change to parameter
+(setq tramp-auto-save-directory (expand-file-name "var/tramp/" user-emacs-directory))  ;; TODO: change to parameter
 (setq tramp-chunksize 2000)
 ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 (connection-local-set-profile-variables
@@ -262,6 +262,7 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 ;;;; Code-Cells
 ;;   ==========
 (use-package code-cells
+  :straight (code-cells :host github :repo "astoff/code-cells.el" :branch "master")
   :hook ((julia-mode python-base-mode) . code-cells-mode)
   :config
   (let ((map code-cells-mode-map))
@@ -709,4 +710,15 @@ point reaches the beginning or end of the buffer, stop there."
   :init (setq elfeed-feeds
               '(("https://codingquark.com/feed.xml" emacs)
                 ("https://ag91.github.io/rss.xml" emacs)
-                ("https://sqrtminusone.xyz/posts/index.xml" emacs))))
+                ("https://sqrtminusone.xyz/posts/index.xml" emacs)
+                ("https://hbfs.wordpress.com/feed/" comp-sci))))
+
+
+;; ---------------------------------------------------------------------------------------
+;;; General TODOs
+;; ---------------------------------------------------------------------------------------
+
+;; dragstuff
+;; better comment-lines that doesn't move cursor (save-excursion or smth?)
+
+;; make code-cells and ipynb work with treesitter (& emacs-jupyter...)
