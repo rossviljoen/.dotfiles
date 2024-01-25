@@ -163,7 +163,7 @@
 
 
 ;;;; Line numbers
-;;   =======
+;;   ============
 (require 'display-line-numbers)
 
 ;; Exclude some modes from global line numbers
@@ -183,6 +183,12 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type t)
+
+;; ;;;; Exec Path
+;; ;;   =========
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
 
 
 ;; ---------------------------------------------------------------------------------------
@@ -388,7 +394,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;; Khoj
 ;;   ====
 ;;     Natural language search
-(use-package khoj)
+;; (use-package khoj)
 
 
 ;; ---------------------------------------------------------------------------------------
@@ -667,6 +673,43 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Programming Language Modes
 ;; ---------------------------------------------------------------------------------------
 
+;;;; OCaml
+;;   =====
+
+(let ((opam-share (ignore-errors (car (process-lines "opam" "var" "share")))))
+  (when (and opam-share (file-directory-p opam-share))
+    ;; Register Merlin and Tuareg
+    (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
+    (autoload 'merlin-mode "merlin" nil t nil)
+    (load (expand-file-name "emacs/site-lisp/tuareg-site-file" opam-share))
+    ;; (setq merlin-command "/home/ross/.opam/default/bin/ocamlmerlin") ; TODO: shouldn't be necessary?
+    ;; Automatically start it in OCaml buffers
+    (add-hook 'tuareg-mode-hook 'merlin-mode t)
+    (add-hook 'caml-mode-hook 'merlin-mode t)
+    ;; ;; Use opam switch to lookup ocamlmerlin binary
+    ;; (setq merlin-command 'opam)
+    (setq merlin-command "/home/ross/.opam/default/bin/ocamlmerlin") ; TODO: shouldn't be necessary?
+    ;; To easily change opam switches within a given Emacs session, you can
+    ;; install the minor mode https://github.com/ProofGeneral/opam-switch-mode
+    ;; and use one of its "OPSW" menus.
+    ))
+
+(use-package dune)
+
+(use-package merlin-eldoc)
+
+(use-package utop
+  :config
+  (add-hook 'tuareg-mode-hook #'utop-minor-mode)
+  (setq utop-command "opam exec -- dune utop . -- -emacs"))
+
+;; https://opam.ocaml.org/doc/Tricks.html
+(defun opam-env ()
+  (interactive nil)
+  (dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
+    (setenv (car var) (cadr var))))
+(opam-env)
+
 ;;;; Julia
 ;;   =====
 (use-package julia-mode)
@@ -741,6 +784,16 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
+
+
+(load-file (let ((coding-system-for-read 'utf-8))
+             (shell-command-to-string "agda-mode locate")))
+
+(setq auto-mode-alist
+   (append
+     '(("\\.agda\\'" . agda2-mode)
+       ("\\.lagda.md\\'" . agda2-mode))
+     auto-mode-alist))
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Structural Editing
