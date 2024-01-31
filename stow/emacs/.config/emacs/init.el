@@ -43,6 +43,7 @@
 (setq garbage-collection-messages t)
 (setq gc-cons-threshold (* 100 1024 1024))
 ;; Run GC whenever Emacs loses focus
+;; https://news.ycombinator.com/item?id=39191012
 (add-function :after
               after-focus-change-function
               (lambda () (unless (frame-focus-state) (garbage-collect))))
