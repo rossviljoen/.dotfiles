@@ -40,7 +40,12 @@
 ;;; Built-in Settings
 ;; ---------------------------------------------------------------------------------------
 
+(setq garbage-collection-messages t)
 (setq gc-cons-threshold (* 100 1024 1024))
+;; Run GC whenever Emacs loses focus
+(add-function :after
+              after-focus-change-function
+              (lambda () (unless (frame-focus-state) (garbage-collect))))
 
 (setq user-full-name "Ross Viljoen"
       user-mail-address "ross@viljoen.co.uk")
