@@ -1,0 +1,4 @@
+#!/bin/sh
+
+stow --verbose --target=$HOME --restow */  # stow all
+# stow--verbose --target=$HOME --delete */  # unstow all

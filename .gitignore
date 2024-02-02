@@ -6,5 +6,5 @@ stow/xmonad/.local
 # Emacs temp files
 \#*\#
 
-stow/emacs/.config/emacs/*
-!stow/emacs/.config/emacs/init.el
+emacs/.config/emacs/*
+!emacs/.config/emacs/init.el

@@ -714,7 +714,7 @@ point reaches the beginning or end of the buffer, stop there."
   (interactive nil)
   (dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
     (setenv (car var) (cadr var))))
-(opam-env)
+(if (executable-find "opam") (opam-env))
 
 ;;;; Julia
 ;;   =====
@@ -792,8 +792,9 @@ point reaches the beginning or end of the buffer, stop there."
   :init (setq markdown-command "multimarkdown"))
 
 
-(load-file (let ((coding-system-for-read 'utf-8))
-             (shell-command-to-string "agda-mode locate")))
+(if (executable-find "agda-mode")
+    (load-file (let ((coding-system-for-read 'utf-8))
+             (shell-command-to-string "agda-mode locate"))))
 
 (setq auto-mode-alist
    (append
