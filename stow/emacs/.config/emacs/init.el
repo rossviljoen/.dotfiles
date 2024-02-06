@@ -742,6 +742,17 @@ point reaches the beginning or end of the buffer, stop there."
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
 
+
+;; (use-package agda2-mode)
+(load-file (let ((coding-system-for-read 'utf-8))
+                (shell-command-to-string "agda-mode locate")))
+(setq auto-mode-alist
+   (append
+     '(("\\.agda\\'" . agda2-mode)
+       ("\\.lagda.md\\'" . agda2-mode))
+     auto-mode-alist))
+
+
 ;; ---------------------------------------------------------------------------------------
 ;;; Structural Editing
 ;; ---------------------------------------------------------------------------------------

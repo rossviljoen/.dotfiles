@@ -1,0 +1,100 @@
+;; Disable menu-bar, tool-bar and scroll-bar to increase the usable space.
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+;; Also shrink fringes to 1 pixel.
+(fringe-mode 1)
+
+;; Turn on `display-time-mode' if you don't use an external bar.
+(setq display-time-default-load-average nil)
+(display-time-mode t)
+
+(require 'exwm)
+(require 'exwm-config)
+
+(add-hook 'exwm-update-class-hook
+          (lambda ()
+            (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                        (string= "gimp" exwm-instance-name))
+              (exwm-workspace-rename-buffer exwm-class-name))))
+(add-hook 'exwm-update-title-hook
+          (lambda ()
+            (when (or (not exwm-instance-name)
+                      (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                      (string= "gimp" exwm-instance-name))
+              (exwm-workspace-rename-buffer exwm-title))))
+
+(setq exwm-workspace-number 10)
+
+(setq exwm-input-global-keys
+      `(
+        ;; Bind "s-r" to exit char-mode and fullscreen mode.
+        ([?\s-r] . exwm-reset)
+        ;; Bind "s-w" to switch workspace interactively.
+        ([?\s-w] . exwm-workspace-switch)
+        ;; Bind "s-0" to "s-9" to switch to a workspace by its index.
+        ,@(mapcar (lambda (i)
+                    `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch-create ,i))))
+                  (number-sequence 0 9))
+        ;; Bind "s-&" to launch applications ('M-&' also works if the output
+        ;; buffer does not bother you).
+        ([?\s-&] . (lambda (command)
+		             (interactive (list (read-shell-command "$ ")))
+		             (start-process-shell-command command nil command)))
+        ;; Bind "s-<f2>" to "slock", a simple X display locker.
+        ([s-f2] . (lambda ()
+		            (interactive)
+		            (start-process "" nil "/usr/bin/slock")))))
+
+
+;; To add a key binding only available in line-mode, simply define it in
+;; `exwm-mode-map'.  The following example shortens 'C-c q' to 'C-q'.
+(define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+
+(setq exwm-input-simulation-keys
+      '(
+        ;; movement
+        ([?\C-b] . [left])
+        ([?\M-b] . [C-left])
+        ([?\C-f] . [right])
+        ([?\M-f] . [C-right])
+        ([?\C-p] . [up])
+        ([?\C-n] . [down])
+        ([?\C-a] . [home])
+        ([?\C-e] . [end])
+        ([?\M-v] . [prior])
+        ([?\C-v] . [next])
+        ([?\C-d] . [delete])
+        ([?\C-k] . [S-end delete])
+        ;; cut/paste.
+        ([?\C-w] . [?\C-x])
+        ([?\M-w] . [?\C-c])
+        ([?\C-y] . [?\C-v])
+        ;; search
+        ([?\C-s] . [?\C-f])))
+
+(require 'exwm-randr)
+(setq exwm-randr-workspace-output-plist
+      '(1 "DVI-I-1" 2 "DVI-I-1" 3 "DVI-I-1" 4 "DVI-I-1" 5 "DVI-I-1"
+          6 "DVI-D-1" 7 "DVI-D-1" 8 "DVI-D-1" 9 "DVI-D-1" 0 "DVI-D-1"))
+;; (setq exwm-randr-workspace-output-plist
+      ;; '(0 "DVI-I-1" 1 "DVI-D-1"))
+(add-hook 'exwm-randr-screen-change-hook
+          (lambda ()
+            (start-process-shell-command
+            ;; get this from arandr
+             "xrandr" nil "xrandr --output DVI-I-1 --primary --mode 1920x1080 --pos 0x420 --rotate normal --output DVI-D-1 --mode 1920x1080 --pos 1920x0 --rotate left")))
+(exwm-randr-enable)
+
+;; (require 'perspective-exwm)
+;; (perspective-exwm-mode)
+
+(exwm-enable)
+
+
+;; This is crap, why is this file needed??
+;; should do something like this:
+;; https://git.sr.ht/~aadcg/aadcg-guix-channel/tree/master/item/packages/aadcg-emacs-xyz.scm#L50
