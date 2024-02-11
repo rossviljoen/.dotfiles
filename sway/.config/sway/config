@@ -80,6 +80,10 @@ input type:touchpad {
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
 
+### Aesthetic settings
+
+default_border pixel 2
+
 ### Key bindings
 #
 # Basics:
@@ -133,10 +137,15 @@ input type:touchpad {
 # Workspaces:
 #
     # Switch to workspace
-    bindsym $mod+1 workspace number 1
-    bindsym $mod+2 workspace number 2
-    bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
+    set $ws1 1:dev
+    set $ws2 2:term
+    set $ws3 3:web
+    set $ws4 number 4
+
+    bindsym $mod+1 workspace $ws1
+    bindsym $mod+2 workspace $ws2
+    bindsym $mod+3 workspace $ws3
+    bindsym $mod+4 workspace $ws4
     bindsym $mod+5 workspace number 5
     bindsym $mod+6 workspace number 6
     bindsym $mod+7 workspace number 7
@@ -144,10 +153,10 @@ input type:touchpad {
     bindsym $mod+9 workspace number 9
     bindsym $mod+0 workspace number 10
     # Move focused container to workspace
-    bindsym $mod+Shift+1 move container to workspace number 1
-    bindsym $mod+Shift+2 move container to workspace number 2
-    bindsym $mod+Shift+3 move container to workspace number 3
-    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+Shift+1 move container to workspace $ws1
+    bindsym $mod+Shift+2 move container to workspace $ws2
+    bindsym $mod+Shift+3 move container to workspace $ws3
+    bindsym $mod+Shift+4 move container to workspace $ws4
     bindsym $mod+Shift+5 move container to workspace number 5
     bindsym $mod+Shift+6 move container to workspace number 6
     bindsym $mod+Shift+7 move container to workspace number 7
@@ -252,3 +261,14 @@ bar {
 }
 
 include /etc/sway/config.d/*
+
+
+## Setup inital applications
+workspace $ws3
+# exec firefox
+
+workspace $ws2
+exec term
+
+workspace $ws1 
+exec emacs

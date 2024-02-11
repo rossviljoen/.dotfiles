@@ -8,3 +8,6 @@ stow/xmonad/.local
 
 emacs/.config/emacs/*
 !emacs/.config/emacs/init.el
+
+gnupg/.local/share/gnupg/*
+!gnupg/.local/share/gnupg/gpg-agent.conf

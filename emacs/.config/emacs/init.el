@@ -190,11 +190,30 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type t)
 
-;; ;;;; Exec Path
-;; ;;   =========
+
+;;;; Proced
+;;   ======
+(use-package proced
+  :custom
+  (proced-auto-update-flag t)
+  (proced-auto-update-interval 3)
+  (proced-enable-color-flag t)
+  (proced-show-remote-processes t))
+
+
+;;;; Exec Path
+;;   =========
 (use-package exec-path-from-shell
   :config
   (exec-path-from-shell-initialize))
+
+
+;;;; Pinentry
+;;   ========
+;;   Needed for GPG passphrase entry when signing magit commits
+(use-package pinentry
+  :config
+  (pinentry-start))
 
 
 ;; ---------------------------------------------------------------------------------------
@@ -825,7 +844,8 @@ point reaches the beginning or end of the buffer, stop there."
                 ("http://verisimilitudes.net/rss.xml" programming)
                 ("http://ngnghm.github.io/feeds/all.rss.xml" programming)
                 ("http://www.loper-os.org/?feed=rss" programming)
-                ("https://hbfs.wordpress.com/feed/" comp-sci))))
+                ("https://hbfs.wordpress.com/feed/" comp-sci)))
+         (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Window Manager
@@ -847,3 +867,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)
 
 ;; make code-cells and ipynb work with treesitter (& emacs-jupyter...)
+
+;; https://github.com/mickeynp/combobulate
+
