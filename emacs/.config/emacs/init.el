@@ -1,6 +1,22 @@
 ;;; init.el --- Description -*- lexical-binding: t; -*-
 
 ;; ---------------------------------------------------------------------------------------
+;;; Intro
+;; ---------------------------------------------------------------------------------------
+
+;; A quick guide to use-package:
+;; (use-package foo
+;;   :bind (("M-s O" . foo-do-something)   ; Bind globally
+;;          :map foo-mode-map              ; Bind in mode map (can be another package's mode)
+;;          ("M-o" . foo-do-smth-in-foo-mode)
+;;          ("M-O" . foo-do-smth-else)
+;;          ([remap fill-paragraph] . foo-fill)) ; Remap the key binding of fill-paragraph to foo-fill
+;;   :init                                 ; Executes before package is loaded
+;;   (setq foo-init t)
+;;   :config                               ; Executes after package is loaded
+;;   (foo-mode 1))
+
+;; ---------------------------------------------------------------------------------------
 ;;; Straight.el package manager setup
 ;; ---------------------------------------------------------------------------------------
 
@@ -118,13 +134,22 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       custom-file (expand-file-name "custom.el" user-emacs-directory))
 
+
 ;;;; Dired
 ;;   =====
-(setq dired-listing-switches "-aBhl  --group-directories-first"
-      dired-dwim-target t
-      dired-recursive-copies (quote always)
-      dired-recursive-deletes (quote top))
-(require 'dired-x)
+(use-package dired
+  :straight (:type built-in)
+  :custom
+  (dired-listing-switches "-aBhl  --group-directories-first")
+  (dired-dwim-target t)
+  (dired-recursive-copies (quote always))
+  (dired-recursive-deletes (quote top))
+  (dired-isearch-filenames t)
+  :bind (:map dired-mode-map
+              ("M-s f" . consult-recent-file))
+  :config
+  (require 'dired-x))
+
 
 ;;;; Tramp
 ;;   =====
@@ -224,8 +249,8 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
   (load-theme 'solarized-light t))
 
 (use-package smooth-scrolling
-        :config
-        (smooth-scrolling-mode t))
+  :config
+  (smooth-scrolling-mode t))
 
 (use-package sudo-edit)
 
@@ -241,7 +266,7 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 
 (use-package magit
   :bind
-  (("C-x g" . magit-status)))
+  ("C-x g" . magit-status))
 
 (use-package rainbow-mode)
 
@@ -251,8 +276,8 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 (use-package vterm)
 (use-package vterm-toggle
   :bind
-  ("M-<return>" . vterm-toggle)
-  ("S-M-<return>" . vterm-toggle-cd))
+  (("M-<return>" . vterm-toggle)
+  ("S-M-<return>" . vterm-toggle-cd)))
 
 
 ;; ;;;; Perspective
@@ -823,8 +848,11 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Structural Editing
 ;; ---------------------------------------------------------------------------------------
 
+;; TODO:
+
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
+;; https://github.com/mickeynp/combobulate
 
 
 ;; ---------------------------------------------------------------------------------------
@@ -854,17 +882,18 @@ point reaches the beginning or end of the buffer, stop there."
 ;; ---------------------------------------------------------------------------------------
 ;;; Guix
 ;; ---------------------------------------------------------------------------------------
+
 (use-package guix)
 
 
 ;; ---------------------------------------------------------------------------------------
-;;; General TODOs
+;;; TODO
 ;; ---------------------------------------------------------------------------------------
+
+;; switch package manager to https://github.com/progfolio/elpaca
 
 ;; dragstuff
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)
 
-;; make code-cells and ipynb work with treesitter (& emacs-jupyter...)
-
-;; https://github.com/mickeynp/combobulate
+;; https://github.com/mickeynp/combobulate for structured code editing with tree-sitter
 
