@@ -239,8 +239,6 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
     :config
     (pdf-tools-install)))
 
-
-(setq is-guix-system nil)
 (use-package magit
   :bind
   (("C-x g" . magit-status)))
@@ -369,10 +367,10 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 ;; (use-package mood-line
   ;; :init (mood-line-mode))
 
-;; Visually wrap lines at fill-columnx
-(use-package visual-fill-column
-  :hook
-  (visual-line-mode . visual-fill-column-mode))
+;; Visually wrap lines at fill-column
+;; (use-package visual-fill-column
+  ;; :hook
+  ;; (visual-line-mode . visual-fill-column-mode))
 
 ;; Hide the modeline for inferior python processes.  This is not a necessary
 ;; package but it's helpful to make better use of the screen real-estate at our
