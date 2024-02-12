@@ -30,8 +30,6 @@ export IPYTHONDIR=$XDG_CONFIG_HOME/jupyter
 export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
 export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
-alias firefox='firefox --profile "${XDG_CONFIG_HOME}/mozilla" "$@"'
-
 
 # Other non-XDG home dirs
 export JULIA_DEPOT_PATH=$DEV/julia

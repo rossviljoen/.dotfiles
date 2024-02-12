@@ -38,6 +38,12 @@ output * bg $XDG_CONFIG_HOME/sway/backgrounds/de-chirico-christ-and-the-storm.jp
 exec_always gammastep -O 3900
 
 
+### GTK Theme
+
+exec gsettings set org.gnome.desktop.interface gtk-theme Adwaita
+exec gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+
+
 ### Idle configuration
 #
 # Example configuration:
