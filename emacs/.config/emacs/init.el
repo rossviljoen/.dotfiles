@@ -684,7 +684,6 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 (use-package consult-todo
-  :after (hl-todo)
   ;; Search TODOs detected by 'hl-todo' with consult
   :bind ("M-s t" . consult-todo))
 
