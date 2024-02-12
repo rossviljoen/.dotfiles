@@ -1,4 +1,4 @@
-;;; init.el --- Description -*- lexical-binding: t; -*-
+;;; init.el -*- lexical-binding: t; -*-
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Intro
@@ -11,49 +11,18 @@
 ;;          ("M-o" . foo-do-smth-in-foo-mode)
 ;;          ("M-O" . foo-do-smth-else)
 ;;          ([remap fill-paragraph] . foo-fill)) ; Remap the key binding of fill-paragraph to foo-fill
+;;   :hook (python-base-mode . foo-mode)   ; add foo-mode to python-base-mode-hook
 ;;   :init                                 ; Executes before package is loaded
 ;;   (setq foo-init t)
 ;;   :config                               ; Executes after package is loaded
 ;;   (foo-mode 1))
 
-;; ---------------------------------------------------------------------------------------
-;;; Straight.el package manager setup
-;; ---------------------------------------------------------------------------------------
 
-(setq straight-use-package-by-default t)
-;; Bootstrap straight
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(straight-use-package 'use-package)
-
-
-;; if we're in guix, some packages need to be installed by guix, not straight
-(defvar is-guix-system (and (eq system-type 'gnu/linux)
-			                (file-exists-p "/etc/os-release")
-                            (with-temp-buffer
-                              (insert-file-contents "/etc/os-release")
-                              (search-forward "ID=guix" nil t))
-                            t))
-
-;; TODO: not sure this should be necessary?
-;; (if is-guix-system
-    ;; (add-to-list 'load-path "/home/ross/.guix-profile/share/emacs/site-lisp"))
-;; (load "subdirs")
-
-;; (load-file (expand-file-name "exwm-config.el" user-emacs-directory))
+;; Keywords which trigger deferred loading are:
+;; ':hook', ‘:commands’, ‘:bind’, ‘:bind*’, ‘:bind-keymap’, ‘:bind-keymap*’, ‘:mode’, and ‘:interpreter’
 
 ;; ---------------------------------------------------------------------------------------
-;;; Built-in Settings
+;;; GC Settings
 ;; ---------------------------------------------------------------------------------------
 
 (setq garbage-collection-messages t)
@@ -63,6 +32,66 @@
 (add-function :after
               after-focus-change-function
               (lambda () (unless (frame-focus-state) (garbage-collect))))
+
+
+;; ---------------------------------------------------------------------------------------
+;;; Elpaca package manager
+;; ---------------------------------------------------------------------------------------
+
+(defvar elpaca-installer-version 0.6)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+
+(elpaca elpaca-use-package
+        ;; Enable Elpaca support for use-package's :ensure keyword.
+        (elpaca-use-package-mode))
+
+;; Necessary to use the Elpaca's `:ensure` support after this point
+(elpaca-wait)
+
+;; Add :ensure t by default. If using built-in packages, set :ensure nil
+(use-package use-package
+  :ensure nil
+  :demand t
+  :init (setq use-package-always-ensure t))
+
+
+;; ---------------------------------------------------------------------------------------
+;;; Built-in Settings
+;; ---------------------------------------------------------------------------------------
 
 (setq user-full-name "Ross Viljoen"
       user-mail-address "ross@viljoen.co.uk")
@@ -106,12 +135,17 @@
 (setq uniquify-buffer-name-style 'forward)
 
 ;; https://www.emacswiki.org/emacs/SavePlace
-(save-place-mode 1)
+(save-place-mode)
 
-(recentf-mode 1)
+
+(use-package recentf
+  :ensure nil
+  :init
+  (recentf-mode)
+  (run-at-time nil (* 5 60) 'recentf-save-list)) ; Periodically save recentf list (5 mins)
+
 
 (global-set-key (kbd "M-/") 'hippie-expand)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
 (global-set-key (kbd "M-z") 'zap-up-to-char)
 
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
@@ -138,13 +172,14 @@
 ;;;; Dired
 ;;   =====
 (use-package dired
-  :straight (:type built-in)
-  :custom
-  (dired-listing-switches "-aBhl  --group-directories-first")
-  (dired-dwim-target t)
-  (dired-recursive-copies (quote always))
-  (dired-recursive-deletes (quote top))
-  (dired-isearch-filenames t)
+  :ensure nil
+  :demand t
+  :config
+  (setq dired-listing-switches "-aBhl  --group-directories-first")
+  (setq dired-dwim-target t)
+  (setq dired-recursive-copies (quote always))
+  (setq dired-recursive-deletes (quote top))
+  (setq dired-isearch-filenames t)
   :bind (:map dired-mode-map
               ("M-s f" . consult-recent-file))
   :config
@@ -153,146 +188,145 @@
 
 ;;;; Tramp
 ;;   =====
-(setq tramp-auto-save-directory (expand-file-name "var/tramp/" user-emacs-directory))  ;; TODO: change to parameter
-(setq tramp-chunksize 2000)
-;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
-(connection-local-set-profile-variables
- 'remote-bash
- '((shell-file-name . "/bin/bash")
-   (shell-command-switch . "-c")
-   (shell-interactive-switch . "-i")
-   (shell-login-switch . "-l")))
+(use-package tramp
+  :ensure nil
+  :config
+  (setq tramp-auto-save-directory (expand-file-name "var/tramp/" user-emacs-directory))  ;; TODO: change to parameter
+  (setq tramp-chunksize 2000)
+  ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  (connection-local-set-profile-variables
+   'remote-bash
+   '((shell-file-name . "/bin/bash")
+     (shell-command-switch . "-c")
+     (shell-interactive-switch . "-i")
+     (shell-login-switch . "-l"))))
+
 
 ;;;; Ibuffer
 ;;   =======
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(setq ibuffer-show-empty-filter-groups nil)
-(setq ibuffer-saved-filter-groups
-      '(("Home"
-         ("Programming" (mode . go-mode))
-         ("Dired" (mode . dired-mode))
-         ("Org" (or (name . "^.*org$")
-                    (mode . org-mode)))
-         ("Shell" (or (mode . eshell-mode) (mode . shell-mode)))
-         ("Emacs" (or
-                   (name . "^\\*scratch\\*$")
-                   (name . "^\\*Messages\\*$")))
-         ("Magit" (or (name . "^magit*") (mode . magit-mode)))
-         ("Help" (or (name . "\*Help\*")
-                     (name . "\*Apropos\*")
-                     (name . "\*info\*"))))))
-(add-hook 'ibuffer-mode-hook
-          '(lambda ()
-             (ibuffer-auto-mode 1)
-             (ibuffer-switch-to-saved-filter-groups "Home")))
+(use-package ibuffer
+  :ensure nil
+  :bind
+  ("C-x C-b" . ibuffer)
+  :hook
+  (ibuffer-mode . (lambda ()
+                    (ibuffer-auto-mode 1)
+                    (ibuffer-switch-to-saved-filter-groups "Home")))
+  :config
+  (setq ibuffer-show-empty-filter-groups nil)
+  (setq ibuffer-saved-filter-groups
+        '(("Home"
+           ("Programming" (mode . go-mode))
+           ("Dired" (mode . dired-mode))
+           ("Org" (or (name . "^.*org$")
+                      (mode . org-mode)))
+           ("Shell" (or (mode . eshell-mode) (mode . shell-mode)))
+           ("Emacs" (or
+                     (name . "^\\*scratch\\*$")
+                     (name . "^\\*Messages\\*$")))
+           ("Magit" (or (name . "^magit*") (mode . magit-mode)))
+           ("Help" (or (name . "\*Help\*")
+                       (name . "\*Apropos\*")
+                       (name . "\*info\*")))))))
 
 
 ;;;; Org-mode
 ;;   =======
-(setq org-directory "~/org/")
-(add-hook 'org-mode-hook #'org-indent-mode)
+(use-package org
+  :ensure nil
+  :hook
+  (org-mode . org-indent-mode)
+  :config
+  (setq org-directory "~/org/"))
 
 
 ;;;; Line numbers
 ;;   ============
-(require 'display-line-numbers)
-
-;; Exclude some modes from global line numbers
-(defcustom display-line-numbers-exempt-modes
-  '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode jupyter-repl-mode)
-  "Major modes on which to disable line numbers."
-  :group 'display-line-numbers
-  :type 'list
-  :version "green")
-
-(defun display-line-numbers--turn-on ()
-  "Turn on line numbers except for certain major modes.
-Exempt major modes are defined in `display-line-numbers-exempt-modes'."
-  (unless (or (minibufferp)
-              (member major-mode display-line-numbers-exempt-modes))
-    (display-line-numbers-mode)))
-
-(global-display-line-numbers-mode t)
-(setq display-line-numbers-type t)
+(use-package display-line-numbers
+  :ensure nil
+  :demand t
+  :config
+  ;; Exclude some modes from global line numbers
+  (defcustom display-line-numbers-exempt-modes
+    '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode jupyter-repl-mode)
+    "Major modes on which to disable line numbers."
+    :group 'display-line-numbers
+    :type 'list
+    :version "green")
+  (global-display-line-numbers-mode t)
+  (setq display-line-numbers-type t))
 
 
 ;;;; Proced
 ;;   ======
 (use-package proced
-  :custom
-  (proced-auto-update-flag t)
-  (proced-auto-update-interval 3)
-  (proced-enable-color-flag t)
-  (proced-show-remote-processes t))
+  :ensure nil
+  :config
+  (setq proced-auto-update-flag t)
+  (setq proced-auto-update-interval 3)
+  (setq proced-enable-color-flag t)
+  (setq proced-show-remote-processes t))
 
 
-;;;; Exec Path
-;;   =========
+;; ---------------------------------------------------------------------------------------
+;;; General Packages and Utilities
+;; ---------------------------------------------------------------------------------------
+
+;; Initialise emacs PATH from shell PATH
 (use-package exec-path-from-shell
+  :demand t
   :config
   (exec-path-from-shell-initialize))
 
 
-;;;; Pinentry
-;;   ========
 ;;   Needed for GPG passphrase entry when signing magit commits
 (use-package pinentry
+  :demand t
   :config
   (pinentry-start))
 
 
-;; ---------------------------------------------------------------------------------------
-;;; General Packages
-;; ---------------------------------------------------------------------------------------
 (use-package solarized-theme
+  :demand t
   :config
   (load-theme 'solarized-light t))
 
+
 (use-package smooth-scrolling
+  :demand t
   :config
   (smooth-scrolling-mode t))
 
-(use-package sudo-edit)
 
-;; ;; TODO: better way to integrate straight & guix?
-(if is-guix-system
-    (use-package pdf-tools
-      :straight (pdf-tools :local-repo "/home/ross/.guix-profile/share/emacs/site-lisp/pdf-tools-1.1.0")
-      :config
-      (pdf-tools-install))
-  (use-package pdf-tools
-    :config
-    (pdf-tools-install)))
+(use-package sudo-edit :demand t)
+
+
+(use-package pdf-tools
+  :defer t
+  :config
+  (pdf-tools-install))
+
 
 (use-package magit
   :bind
   ("C-x g" . magit-status))
 
-(use-package rainbow-mode)
+
+(use-package rainbow-mode
+  :demand t
+  :config
+  (rainbow-mode))
 
 
-;;;; Vterm
-;;   =======
-(use-package vterm)
+(use-package vterm :demand t)
 (use-package vterm-toggle
   :bind
   (("M-<return>" . vterm-toggle)
   ("S-M-<return>" . vterm-toggle-cd)))
 
 
-;; ;;;; Perspective
-;; ;;   ===========
-;; (use-package perspective
-;;   :bind (("C-x k" . persp-kill-buffer*))
-;;   :custom
-;;   (persp-mode-prefix-key (kbd "C-x x"))
-;;   :init
-;;   (persp-mode))
-
-
-;;;; Eglot
-;;   =======
 (use-package eglot
+  :ensure nil                           ; Use the builtin eglot
   :hook (python-base-mode . eglot-ensure)
   :config
   ;; make sure eglot works for python-ts-mode
@@ -300,8 +334,6 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
   (setcar (assoc 'python-mode eglot-server-programs) 'python-base-mode))
 
 
-;;;; Jupyter
-;;   =======
 (use-package jupyter
   :init (setq jupyter-repl-echo-eval-p t)
   :bind (:map jupyter-repl-interaction-mode-map
@@ -316,46 +348,46 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
                ;; ("C-c C-z" . jupyter-repl--switch-back)
                ))
   :config
-  
   (setq org-babel-jupyter-resource-directory (concat user-emacs-directory "jupyter"))
+
+  ;; Enable jumping back to the buffer from which jupyter-repl-pop-to-buffer was called
+  ;; TODO: get this to work when starting a new REPL as well?
+  (defvar-local jupyter-repl--script-buffer nil)
+  (defun jupyter-repl-pop-to-buffer-with-save ()
+    "Switch to the REPL buffer of the `jupyter-current-client' and save the script buffer."
+    (interactive)
+    (if jupyter-current-client
+        (let ((script-buffer (current-buffer)))
+          (jupyter-with-repl-buffer jupyter-current-client
+                                    (setq jupyter-repl--script-buffer script-buffer)
+                                    (goto-char (point-max))
+                                    (pop-to-buffer (current-buffer))))
+      (error "Buffer not associated with a REPL, see `jupyter-repl-associate-buffer'")))
+
+  (defun jupyter-repl--switch-back ()
+    "Switch to the buffer that was active before last call to `jupyter-repl-pop-to-buffer-with-save'."
+    (interactive)
+    (when (buffer-live-p jupyter-repl--script-buffer)
+      (switch-to-buffer-other-window jupyter-repl--script-buffer)))
+
+  (advice-add 'jupyter-repl-pop-to-buffer :override #'jupyter-repl-pop-to-buffer-with-save)
+
+  ;; ;; This doesn't work, idk why
+  ;; ;; MAYBE: this is probably a cleaner approach if I can get it to work?
+  ;; (defun jupyter-save-source-buffer (orig-fun &rest args)
+  ;;   (let ((script-buffer (current-buffer)))
+  ;;     (apply orig-fun args)
+  ;;     (setq jupyter-repl--script-buffer script-buffer)))
+  ;; (advice-add 'jupyter-repl-pop-to-buffer :around #'jupyter-save-source-buffer)
+  
   :hook
-  (jupyter-repl-mode . (lambda () (define-key jupyter-repl-mode-map [remap jupyter-repl-pop-to-buffer] 'jupyter-repl--switch-back))))
+  (jupyter-repl-mode . (lambda ()
+                         (define-key jupyter-repl-mode-map
+                                     [remap jupyter-repl-pop-to-buffer] 'jupyter-repl--switch-back))))
 
 
-;; TODO: get this to work when starting a new REPL as well?
-(defvar-local jupyter-repl--script-buffer nil)
-(defun jupyter-repl-pop-to-buffer-with-save ()
-  "Switch to the REPL buffer of the `jupyter-current-client' and save the script buffer."
-  (interactive)
-  (if jupyter-current-client
-      (let ((script-buffer (current-buffer)))
-        (jupyter-with-repl-buffer jupyter-current-client
-          (setq jupyter-repl--script-buffer script-buffer)
-          (goto-char (point-max))
-          (pop-to-buffer (current-buffer))))
-    (error "Buffer not associated with a REPL, see `jupyter-repl-associate-buffer'")))
-
-(defun jupyter-repl--switch-back ()
-  "Switch to the buffer that was active before last call to `jupyter-repl-pop-to-buffer-with-save'."
-  (interactive)
-  (when (buffer-live-p jupyter-repl--script-buffer)
-    (switch-to-buffer-other-window jupyter-repl--script-buffer)))
-
-(advice-add 'jupyter-repl-pop-to-buffer :override #'jupyter-repl-pop-to-buffer-with-save)
-
-;; ;; This doesn't work, idk why
-;; ;; TODO: this is probably a cleaner approach if I can get it to work?
-;; (defun jupyter-save-source-buffer (orig-fun &rest args)
-;;   (let ((script-buffer (current-buffer)))
-;;     (apply orig-fun args)
-;;     (setq jupyter-repl--script-buffer script-buffer)))
-;; (advice-add 'jupyter-repl-pop-to-buffer :around #'jupyter-save-source-buffer)
-
-
-;;;; Code-Cells
-;;   ==========
 (use-package code-cells
-  :straight (code-cells :host github :repo "astoff/code-cells.el" :branch "master")
+  :ensure (:host github :repo "astoff/code-cells.el" :branch "master")
   :hook ((julia-mode python-base-mode) . code-cells-mode)
   :config
   (let ((map code-cells-mode-map))
@@ -365,37 +397,42 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
     (define-key map (kbd "C-c C-w") (code-cells-command 'kill-region :use-region))
     (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region))
     (define-key map [remap python-shell-send-region]
-      (code-cells-command 'python-shell-send-region :use-region :pulse))
+                (code-cells-command 'python-shell-send-region :use-region :pulse))
     (define-key map [remap jupyter-eval-line-or-region]
-      (code-cells-command 'jupyter-eval-region :use-region :pulse))
+                (code-cells-command 'jupyter-eval-region :use-region :pulse))
     ;; (define-key map [remap julia-repl-send-region-or-line]
-      ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
+    ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
     ))
 
-;; (use-package epithet
-;;   ;; Rename buffers with 'epithet-rename-buffer'
-;;   ;; TODO: add buffer-file-name to epithet-suggesters?
+
+(use-package epithet
+  :ensure (:host github :repo "oantolin/epithet")
+  ;; use 'epithet-rename-buffer' to rename a buffer
+  ;; MAYBE: add buffer-file-name to epithet-suggesters?
   
-;;   ;; Always auto-rename a few modes
-;;   :hook
-;;   ((Info-selection eww-after-render help-mode occur-mode shell-mode compilation-start compilation-finish)
-;;    . epithet-rename-buffer))
+  ;; Always auto-rename a few modes
+  :hook
+  ((Info-selection eww-after-render help-mode occur-mode shell-mode)
+   . epithet-rename-buffer)
+  ((compilation-start compilation-finish)
+   . epithet-rename-buffer-ignoring-arguments))
+
 
 (use-package hl-todo
-  :init (global-hl-todo-mode))  ;; TODO: listing TODOs, jumping to next etc??
+  ;; NOTE: 'consult-todo' (see below) lists all TODOs in buffer
+  :demand t
+  ;; https://github.com/progfolio/elpaca/wiki/Warnings-and-Errors
+  :ensure (:depth nil)                  ; Needed to get version info
+  :config (global-hl-todo-mode))
+
 
 (use-package which-key
-  :init (which-key-mode))
+  :demand t
+  :config (which-key-mode))
 
-(use-package wgrep)  ;; editable grep buffers
 
-;; (use-package mood-line
-  ;; :init (mood-line-mode))
+(use-package wgrep :demand t)  ;; editable grep buffers
 
-;; Visually wrap lines at fill-column
-;; (use-package visual-fill-column
-  ;; :hook
-  ;; (visual-line-mode . visual-fill-column-mode))
 
 ;; Hide the modeline for inferior python processes.  This is not a necessary
 ;; package but it's helpful to make better use of the screen real-estate at our
@@ -403,7 +440,7 @@ Exempt major modes are defined in `display-line-numbers-exempt-modes'."
 (use-package hide-mode-line
   :hook (inferior-python-mode . hide-mode-line-mode))
 
-;; TODO: move to separate file?
+
 ;; Taken from: https://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/
 (defun smarter-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
@@ -431,32 +468,49 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key [remap move-beginning-of-line]
                 'smarter-move-beginning-of-line)
 
-;;;; Tree-sitter
-;;   ===========
-;;     Configuration for tree-sitter and related packages
+
 (use-package treesit-auto
+  :demand t
   :init (setq treesit-auto-install 'prompt)
   :config (global-treesit-auto-mode))
 
 
-;;;; Khoj
-;;   ====
-;;     Natural language search
-;; (use-package khoj)
-
-
 ;; ---------------------------------------------------------------------------------------
-;;; Completion
+;;; Minibuffer Completion
 ;; ---------------------------------------------------------------------------------------
 
-;;;; Vertico
-;;   =======
-;;     Minimalistic completion UI
 
 (use-package vertico
-  :init
+  ;; Minimalistic completion UI
+  :demand t
+  :config
   (vertico-mode)
-  
+
+  ;; A few more useful configurations...
+  ;; taken from https://github.com/minad/vertico
+  (setq enable-recursive-minibuffers t) ;; allow minibuffer commands while in minibuffer
+
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
+
   ;; Different scroll margin
   ;; (setq vertico-scroll-margin 0)
 
@@ -468,40 +522,19 @@ point reaches the beginning or end of the buffer, stop there."
 
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
-  :bind (("C-<return>" . vertico-exit-input) ;; insert exact text without completion
-         ))
-
-;; A few more useful configurations...
-;; taken from https://github.com/minad/vertico
-(setq enable-recursive-minibuffers t) ;; allow minibuffer commands while in minibuffer
-
-;; Add prompt indicator to `completing-read-multiple'.
-;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-(defun crm-indicator (args)
-  (cons (format "[CRM%s] %s"
-                (replace-regexp-in-string
-                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                 crm-separator)
-                (car args))
-        (cdr args)))
-(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-;; Do not allow the cursor in the minibuffer prompt
-(setq minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt))
-(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-;; Vertico commands are hidden in normal buffers.
-(setq read-extended-command-predicate
-      #'command-completion-default-include-p)
+  :bind (("C-<return>" . vertico-exit-input))) ; insert exact text without completion
 
 
-;;;; Orderless
-;;   =========
-;;     Defines a completion style where space-separated components can be matched in any order
+;; Save minibuffer history
+(use-package savehist
+  :ensure nil
+  :demand t
+  :init (savehist-mode))
+
 
 (use-package orderless
+  ;; Defines a completion style where space-separated components can
+  ;; be matched in any order.
   :init
   ;; Configure a custom style dispatcher (see the Consult wiki)
   ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
@@ -511,10 +544,6 @@ point reaches the beginning or end of the buffer, stop there."
         completion-category-overrides '((file (styles partial-completion)))))
 
 
-;;;; Marginalia
-;;   ==========
-;;     Marginalia in the minibuffer
-
 (use-package marginalia
   ;; Either bind `marginalia-cycle' globally or only in the minibuffer
   :bind (("M-A" . marginalia-cycle)
@@ -523,17 +552,15 @@ point reaches the beginning or end of the buffer, stop there."
   :init (marginalia-mode))
 
 
-;;;; Consult
-;;   =======
-;;     Search and navigation based on 'completing-read'.
-;;     Essentially, allows other emacs commands to use the better
-;;     minibuffer completion from above.
-;;     NB: 'M-n' usually inserts the thing at point into the minibuffer
-;;     Provides fast previews
-
-;; Example configuration for Consult
 (use-package consult
-  ;; Replace bindings. Lazily loaded due by `use-package'.
+  ;;     Search and navigation based on 'completing-read'.
+  ;;     Essentially, allows other emacs commands to use the better
+  ;;     minibuffer completion from above.
+  ;;     NB: 'M-n' usually inserts the thing at point into the
+  ;;     minibuffer
+  ;;     Provides fast previews
+  
+  ;; Replace bindings. Lazily loaded due to `use-package'.
   :bind (;; C-c bindings (mode-specific-map)
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
@@ -653,14 +680,17 @@ point reaches the beginning or end of the buffer, stop there."
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
-)
+  )
 
 
-;;;; Embark
-;;   ======
-;;     https://karthinks.com/software/fifteen-ways-to-use-embark/
+(use-package consult-todo
+  :after (hl-todo)
+  ;; Search TODOs detected by 'hl-todo' with consult
+  :bind ("M-s t" . consult-todo))
+
 
 (use-package embark
+  ;; https://karthinks.com/software/fifteen-ways-to-use-embark/
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -679,12 +709,11 @@ point reaches the beginning or end of the buffer, stop there."
                  nil
                  (window-parameters (mode-line-format . none)))))
 
+
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :after (embark consult)
-  :demand t ; only necessary if you have the hook below
-  ;; if you want to have consult previews as you move around an
-  ;; auto-updating embark collect buffer
+  :demand t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -811,13 +840,12 @@ point reaches the beginning or end of the buffer, stop there."
 ;; ;; https://github.com/douglasdavis/numpydoc.el.  There are other packages
 ;; ;; available for docstrings, see: https://github.com/naiquevin/sphinx-doc.el
 (use-package numpydoc
-  :ensure t
-  :defer t
-  :custom
-  (numpydoc-insert-examples-block nil)
-  (numpydoc-template-long nil)
+  :config
+  (setq numpydoc-insert-examples-block nil)
+  (setq numpydoc-template-long nil)
   :bind (:map python-mode-map
               ("C-c C-n" . numpydoc-generate)))
+
 
 ;; ;; <OPTIONAL> Buffer formatting on save using black.
 ;; ;; See: https://github.com/pythonic-emacs/blacken.
@@ -829,20 +857,21 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   (blacken-skip-string-normalization t)
 ;;   :hook (python-mode-hook . blacken-mode))
 
+
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
 
 
-(if (executable-find "agda-mode")
-    (load-file (let ((coding-system-for-read 'utf-8))
-             (shell-command-to-string "agda-mode locate"))))
+(when (executable-find "agda-mode")
+  (load-file (let ((coding-system-for-read 'utf-8))
+               (shell-command-to-string "agda-mode locate")))
+  (setq auto-mode-alist
+        (append
+         '(("\\.agda\\'" . agda2-mode)
+           ("\\.lagda.md\\'" . agda2-mode))
+         auto-mode-alist)))
 
-(setq auto-mode-alist
-   (append
-     '(("\\.agda\\'" . agda2-mode)
-       ("\\.lagda.md\\'" . agda2-mode))
-     auto-mode-alist))
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Structural Editing
@@ -859,11 +888,9 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Messaging
 ;; ---------------------------------------------------------------------------------------
 
-;;;; Elfeed (RSS)
-;;   ============
-
 (use-package elfeed
-  :init (setq elfeed-feeds
+  ;; RSS feed reader
+  :config (setq elfeed-feeds
               '(("https://codingquark.com/feed.xml" emacs)
                 ("https://ag91.github.io/rss.xml" emacs)
                 ("https://sqrtminusone.xyz/posts/index.xml" emacs)
@@ -871,7 +898,8 @@ point reaches the beginning or end of the buffer, stop there."
                 ("http://ngnghm.github.io/feeds/all.rss.xml" programming)
                 ("http://www.loper-os.org/?feed=rss" programming)
                 ("https://hbfs.wordpress.com/feed/" comp-sci)))
-         (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
+  (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
+
 
 ;; ---------------------------------------------------------------------------------------
 ;;; Window Manager
@@ -890,10 +918,22 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; TODO
 ;; ---------------------------------------------------------------------------------------
 
-;; switch package manager to https://github.com/progfolio/elpaca
 
 ;; dragstuff
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)
 
-;; https://github.com/mickeynp/combobulate for structured code editing with tree-sitter
+;; Workspaces?
+;; (use-package perspective
+;;   :bind (("C-x k" . persp-kill-buffer*))
+;;   :custom
+;;   (persp-mode-prefix-key (kbd "C-x x"))
+;;   :init
+;;   (persp-mode))
 
+;; Something like khoj.el but less zogged
+
+;; https://github.com/jart/emacs-copilot
+
+;; Actually understand:
+;;  - corfu
+;;  - consult
