@@ -98,96 +98,102 @@
 
 
 ;; -----------------------------------------------------------------------------
-;;; Built-in Settings
+;;; Built-in Packages
 ;; -----------------------------------------------------------------------------
 
-;; Set font to use the system monospace, and make sure it's used for
-;; mathematical symbols as well (necessary for BQN).
-(add-to-list 'default-frame-alist
-             '(font . "monospace-12:weight=light"))
-(set-fontset-font "fontset-default" 'mathematical "monospace")
+(use-package emacs
+  :ensure nil
+  :demand t
+  :config
+  ;; Set font to use the system monospace, and make sure it's used for
+  ;; mathematical symbols as well (necessary for BQN).
+  (add-to-list 'default-frame-alist
+               '(font . "monospace-12:weight=light"))
+  (set-fontset-font "fontset-default" 'mathematical "monospace")
 
-(setq user-full-name "Ross Viljoen"
-      user-mail-address "ross@viljoen.co.uk")
+  (setq user-full-name "Ross Viljoen"
+        user-mail-address "ross@viljoen.co.uk")
 
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-echo-area-message t)
-(setq inhibit-startup-message t)
-(setq initial-scratch-message nil)
+  (setq inhibit-splash-screen t)
+  (setq inhibit-startup-echo-area-message t)
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+  (defalias 'yes-or-no-p 'y-or-n-p)
 
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
+  (setq auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t)))
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory)))
 
-(global-set-key (kbd "M-SPC") 'cycle-spacing)
+  (delete-selection-mode 1)
+  (electric-pair-mode 1) ; auto close parens
 
-(delete-selection-mode +1)
-(electric-pair-mode t) ; auto close parens
+  (setq native-comp-async-report-warnings-errors nil)
 
-(setq native-comp-async-report-warnings-errors nil)
+  ;; Better-defaults
+  ;; Mostly copied from https://github.com/technomancy/better-defaults
+  (tooltip-mode -1)
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (horizontal-scroll-bar-mode -1)
 
-;;;; Better-defaults
-;;   ===============
-;;     Mostly copied from https://github.com/technomancy/better-defaults
-(tooltip-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(horizontal-scroll-bar-mode -1)
+  ;; Fill column settings
+  (setq-default fill-column 80)
+  (global-display-fill-column-indicator-mode)
+  (remove-hook 'text-mode-hook #'auto-fill-mode)
+  (add-hook 'message-mode-hook #'word-wrap-mode)
+  (add-hook 'text-mode-hook #'visual-line-mode)
 
-;; Fill column settings
-(setq-default fill-column 80)
-(global-display-fill-column-indicator-mode)
-(remove-hook 'text-mode-hook #'auto-fill-mode)
-(add-hook 'message-mode-hook #'word-wrap-mode)
-(add-hook 'text-mode-hook #'visual-line-mode)
+  ;; https://www.emacswiki.org/emacs/SavePlace
+  (save-place-mode 1)
 
-(autoload 'zap-up-to-char "misc"
-  "Kill up to, but not including ARGth occurrence of CHAR." t)
+  (show-paren-mode 1)
 
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (savehist-mode 1)                     ; Minibuffer history
 
-;; https://www.emacswiki.org/emacs/SavePlace
-(save-place-mode)
+  (setq save-interprogram-paste-before-kill t
+        apropos-do-all t
+        mouse-yank-at-point t
+        require-final-newline t
+        visible-bell t
+        load-prefer-newer t
+        backup-by-copying t
+        frame-inhibit-implied-resize t
+        ediff-window-setup-function 'ediff-setup-windows-plain
+        custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+  :bind
+  ("M-SPC" . cycle-spacing)
+
+  ("M-/" . hippie-expand)
+  ("M-z" . zap-up-to-char)
+  
+  ("C-s" . isearch-forward-regexp)
+  ("C-r" . isearch-backward-regexp)
+  ("C-M-s" . isearch-forward)
+  ("C-M-r" . 'isearch-backward))
+
+
+(use-package uniquify
+  ;; Disambiguate buffer names with "bar/mumble/name"; "quux/mumble/name"
+  ;; instead of "name"; "name<2>".
+  :ensure nil
+  :config
+  (setq uniquify-buffer-name-style 'forward))
+
 
 (use-package recentf
   :ensure nil
-  :init
-  (recentf-mode)
+  :config
+  (recentf-mode 1)
   ; Periodically save recentf list (5 mins)
   (run-at-time nil (* 5 60) 'recentf-save-list)) 
 
 
-(global-set-key (kbd "M-/") 'hippie-expand)
-(global-set-key (kbd "M-z") 'zap-up-to-char)
-
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "C-M-s") 'isearch-forward)
-(global-set-key (kbd "C-M-r") 'isearch-backward)
-
-(show-paren-mode 1)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-(savehist-mode 1)
-(setq save-interprogram-paste-before-kill t
-      apropos-do-all t
-      mouse-yank-at-point t
-      require-final-newline t
-      visible-bell t
-      load-prefer-newer t
-      backup-by-copying t
-      frame-inhibit-implied-resize t
-      ediff-window-setup-function 'ediff-setup-windows-plain
-      custom-file (expand-file-name "custom.el" user-emacs-directory))
-
-
-;;;; Dired
-;;   =====
 (use-package dired
   :ensure nil
   :demand t
@@ -197,14 +203,11 @@
   (setq dired-recursive-copies (quote always))
   (setq dired-recursive-deletes (quote top))
   (setq dired-isearch-filenames t)
+  (use-package dired-x)
   :bind (:map dired-mode-map
-              ("M-s f" . consult-recent-file))
-  :config
-  (require 'dired-x))
+              ("M-s f" . consult-recent-file)))
 
 
-;;;; Tramp
-;;   =====
 (use-package tramp
   :ensure nil
   :config
@@ -220,8 +223,6 @@
      (shell-login-switch . "-l"))))
 
 
-;;;; Ibuffer
-;;   =======
 (use-package ibuffer
   :ensure nil
   :bind
@@ -234,7 +235,7 @@
   (setq ibuffer-show-empty-filter-groups nil)
   (setq ibuffer-saved-filter-groups
         '(("Home"
-           ("Programming" (mode . go-mode))
+           ("Programming" (mode . prog-mode))
            ("Dired" (mode . dired-mode))
            ("Org" (or (name . "^.*org$")
                       (mode . org-mode)))
@@ -248,8 +249,6 @@
                        (name . "\*info\*")))))))
 
 
-;;;; Org-mode
-;;   =======
 (use-package org
   :ensure nil
   :hook
@@ -258,11 +257,8 @@
   (setq org-directory "~/org/"))
 
 
-;;;; Line numbers
-;;   ============
 (use-package display-line-numbers
   :ensure nil
-  :demand t
   :config
   ;; Exclude some modes from global line numbers
   (defcustom display-line-numbers-exempt-modes
@@ -271,12 +267,10 @@
     :group 'display-line-numbers
     :type 'list
     :version "green")
-  (global-display-line-numbers-mode t)
+  (global-display-line-numbers-mode 1)
   (setq display-line-numbers-type t))
 
 
-;;;; Proced
-;;   ======
 (use-package proced
   :ensure nil
   :config
@@ -313,11 +307,10 @@
 (use-package smooth-scrolling
   :demand t
   :config
-  (smooth-scrolling-mode t))
+  (smooth-scrolling-mode 1))
 
 
-(use-package sudo-edit
-  :demand t)
+(use-package sudo-edit)
 
 
 (use-package pdf-tools
@@ -328,12 +321,7 @@
   :bind ("C-x g" . magit-status))
 
 
-(use-package rainbow-mode
-  :demand t
-  :config (rainbow-mode))
-
-
-(use-package vterm :demand t)
+(use-package vterm)
 (use-package vterm-toggle
   :bind
   (("M-<return>" . vterm-toggle)
@@ -439,21 +427,17 @@ save the script buffer."
   :demand t
   ;; https://github.com/progfolio/elpaca/wiki/Warnings-and-Errors
   :ensure (:depth nil)                  ; Needed to get version info
-  :config (global-hl-todo-mode))
+  :config (global-hl-todo-mode 1))
 
 
-(use-package which-key
-  :demand t
-  :config (which-key-mode))
+(use-package which-key :config (which-key-mode 1))
 
 
-(use-package wgrep :demand t)  ;; editable grep buffers
+(use-package wgrep)  ;; editable grep buffers
 
 
-;; Hide the modeline for inferior python processes.  This is not a necessary
-;; package but it's helpful to make better use of the screen real-estate at our
-;; disposal. See: https://github.com/hlissner/emacs-hide-mode-line.
 (use-package hide-mode-line
+  ;; Hide the modeline for inferior python processes
   :hook (inferior-python-mode . hide-mode-line-mode))
 
 
@@ -486,11 +470,10 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 (use-package treesit-auto
-  :demand t
   :config
   (setq treesit-auto-install 'prompt)
   (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
+  (global-treesit-auto-mode 1))
 
 
 ;; -----------------------------------------------------------------------------
@@ -502,7 +485,7 @@ point reaches the beginning or end of the buffer, stop there."
   ;; Minimalistic completion UI
   :demand t
   :config
-  (vertico-mode)
+  (vertico-mode 1)
 
   ;; A few more useful configurations...
   ;; taken from https://github.com/minad/vertico
@@ -542,13 +525,6 @@ point reaches the beginning or end of the buffer, stop there."
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
   :bind (("C-<return>" . vertico-exit-input))) ; insert exact text without completion
-
-
-;; Save minibuffer history
-(use-package savehist
-  :ensure nil
-  :demand t
-  :init (savehist-mode))
 
 
 (use-package orderless
@@ -761,7 +737,7 @@ point reaches the beginning or end of the buffer, stop there."
   ;; This is recommended since Dabbrev can be used globally (M-/).
   ;; See also `corfu-excluded-modes'.
   :init
-  (global-corfu-mode))
+  (global-corfu-mode 1))
 
 
 ;; -----------------------------------------------------------------------------
@@ -817,7 +793,7 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
-;; TODO: add Julia snail?
+;; MAYBE: Julia snail?
 
 
 ;;;; Python
@@ -946,19 +922,6 @@ point reaches the beginning or end of the buffer, stop there."
                 ("http://www.loper-os.org/?feed=rss" programming)
                 ("https://hbfs.wordpress.com/feed/" comp-sci)))
   (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
-
-
-;; -----------------------------------------------------------------------------
-;;; Window Manager
-;; -----------------------------------------------------------------------------
-;; (use-package perspective-exwm)
-
-
-;; -----------------------------------------------------------------------------
-;;; Guix
-;; -----------------------------------------------------------------------------
-
-(use-package guix)
 
 
 ;; -----------------------------------------------------------------------------
