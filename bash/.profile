@@ -23,6 +23,7 @@ export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export CARGO_HOME=$XDG_DATA_HOME/cargo
 export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
 
+export RYE_HOME=$XDG_CONFIG_HOME/rye
 export PYTHON_HISTORY=$XDG_STATE_HOME/python/history
 export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python
 export PYTHONUSERBASE=$XDG_DATA_HOME/python
@@ -45,14 +46,17 @@ export ERRFILE=$XDG_CACHE_HOME/x11/xsession-errors
 
 # N.B. /tmp is an in-memory tmpfs on Arch. change to /var/tmp if OOM
 export TMPDIR=/tmp
-export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin:$HOME/.local/bin
+export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$RYE_HOME/shims
 
 
 # Various hacks etc.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
-export MAKEFLAGS="-j$(nproc)"
+export MAKEFLAGS="-j$(expr $(nproc) - 2)"
 
 # This is needed to use Jax from Julia through PythonCall
 # see: https://github.com/JuliaPy/PyCall.jl/issues/722
 # https://github.com/JuliaPy/PyCall.jl/issues/990
 # export LD_PRELOAD=/usr/lib64/libstdc++.so.6
+

@@ -1,16 +1,22 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Intro
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 ;; A quick guide to use-package:
 ;; (use-package foo
 ;;   :bind (("M-s O" . foo-do-something)   ; Bind globally
-;;          :map foo-mode-map              ; Bind in mode map (can be another package's mode)
+;;
+;;          ; Bind in mode map (can be another package's mode)
+;;          :map foo-mode-map
+;;
 ;;          ("M-o" . foo-do-smth-in-foo-mode)
 ;;          ("M-O" . foo-do-smth-else)
-;;          ([remap fill-paragraph] . foo-fill)) ; Remap the key binding of fill-paragraph to foo-fill
+;;
+;;          ; Remap the key binding of fill-paragraph to foo-fill
+;;          ([remap fill-paragraph] . foo-fill))
+;;
 ;;   :hook (python-base-mode . foo-mode)   ; add foo-mode to python-base-mode-hook
 ;;   :init                                 ; Executes before package is loaded
 ;;   (setq foo-init t)
@@ -18,12 +24,12 @@
 ;;   (foo-mode 1))
 
 
-;; Keywords which trigger deferred loading are:
-;; ':hook', ‘:commands’, ‘:bind’, ‘:bind*’, ‘:bind-keymap’, ‘:bind-keymap*’, ‘:mode’, and ‘:interpreter’
+;; Keywords which trigger deferred loading are: ':hook', ‘:commands’, ‘:bind’,
+;; ‘:bind*’, ‘:bind-keymap’, ‘:bind-keymap*’, ‘:mode’, and ‘:interpreter’
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; GC Settings
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 (setq garbage-collection-messages t)
 (setq gc-cons-threshold (* 100 1024 1024))
@@ -34,9 +40,9 @@
               (lambda () (unless (frame-focus-state) (garbage-collect))))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Elpaca package manager
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 (defvar elpaca-installer-version 0.6)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -44,7 +50,8 @@
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
                               :ref nil
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :files
+                              (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
        (build (expand-file-name "elpaca/" elpaca-builds-directory))
@@ -62,7 +69,8 @@
                                        (or (plist-get order :ref) "--"))))
                  (emacs (concat invocation-directory invocation-name))
                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                                       "--eval"
+                                       "(byte-recompile-directory \".\" 0 'force)")))
                  ((require 'elpaca))
                  ((elpaca-generate-autoloads "elpaca" repo)))
             (progn (message "%s" (buffer-string)) (kill-buffer buffer))
@@ -89,9 +97,15 @@
   :init (setq use-package-always-ensure t))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Built-in Settings
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
+
+;; Set font to use the system monospace, and make sure it's used for
+;; mathematical symbols as well (necessary for BQN).
+(add-to-list 'default-frame-alist
+             '(font . "monospace-12:weight=light"))
+(set-fontset-font "fontset-default" 'mathematical "monospace")
 
 (setq user-full-name "Ross Viljoen"
       user-mail-address "ross@viljoen.co.uk")
@@ -107,10 +121,6 @@
       `((".*" ,temporary-file-directory t)))
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
-
-(remove-hook 'text-mode-hook #'auto-fill-mode)
-(add-hook 'message-mode-hook #'word-wrap-mode)
-(add-hook 'text-mode-hook #'visual-line-mode)
 
 (global-set-key (kbd "M-SPC") 'cycle-spacing)
 
@@ -128,6 +138,13 @@
 (scroll-bar-mode -1)
 (horizontal-scroll-bar-mode -1)
 
+;; Fill column settings
+(setq-default fill-column 80)
+(global-display-fill-column-indicator-mode)
+(remove-hook 'text-mode-hook #'auto-fill-mode)
+(add-hook 'message-mode-hook #'word-wrap-mode)
+(add-hook 'text-mode-hook #'visual-line-mode)
+
 (autoload 'zap-up-to-char "misc"
   "Kill up to, but not including ARGth occurrence of CHAR." t)
 
@@ -137,12 +154,12 @@
 ;; https://www.emacswiki.org/emacs/SavePlace
 (save-place-mode)
 
-
 (use-package recentf
   :ensure nil
   :init
   (recentf-mode)
-  (run-at-time nil (* 5 60) 'recentf-save-list)) ; Periodically save recentf list (5 mins)
+  ; Periodically save recentf list (5 mins)
+  (run-at-time nil (* 5 60) 'recentf-save-list)) 
 
 
 (global-set-key (kbd "M-/") 'hippie-expand)
@@ -191,7 +208,8 @@
 (use-package tramp
   :ensure nil
   :config
-  (setq tramp-auto-save-directory (expand-file-name "var/tramp/" user-emacs-directory))  ;; TODO: change to parameter
+  (setq tramp-auto-save-directory
+        (expand-file-name "var/tramp/" user-emacs-directory))
   (setq tramp-chunksize 2000)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   (connection-local-set-profile-variables
@@ -268,9 +286,9 @@
   (setq proced-show-remote-processes t))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; General Packages and Utilities
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 ;; Initialise emacs PATH from shell PATH
 (use-package exec-path-from-shell
@@ -298,24 +316,21 @@
   (smooth-scrolling-mode t))
 
 
-(use-package sudo-edit :demand t)
+(use-package sudo-edit
+  :demand t)
 
 
 (use-package pdf-tools
-  :defer t
-  :config
-  (pdf-tools-install))
+  :init (pdf-tools-install))
 
 
 (use-package magit
-  :bind
-  ("C-x g" . magit-status))
+  :bind ("C-x g" . magit-status))
 
 
 (use-package rainbow-mode
   :demand t
-  :config
-  (rainbow-mode))
+  :config (rainbow-mode))
 
 
 (use-package vterm :demand t)
@@ -327,11 +342,7 @@
 
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
-  :hook (python-base-mode . eglot-ensure)
-  :config
-  ;; make sure eglot works for python-ts-mode
-  ;; TODO: make this idempotent
-  (setcar (assoc 'python-mode eglot-server-programs) 'python-base-mode))
+  :hook (python-base-mode . eglot-ensure))
 
 
 (use-package jupyter
@@ -350,11 +361,13 @@
   :config
   (setq org-babel-jupyter-resource-directory (concat user-emacs-directory "jupyter"))
 
-  ;; Enable jumping back to the buffer from which jupyter-repl-pop-to-buffer was called
+  ;; Enable jumping back to the buffer from which jupyter-repl-pop-to-buffer was
+  ;; called.
   ;; TODO: get this to work when starting a new REPL as well?
   (defvar-local jupyter-repl--script-buffer nil)
   (defun jupyter-repl-pop-to-buffer-with-save ()
-    "Switch to the REPL buffer of the `jupyter-current-client' and save the script buffer."
+    "Switch to the REPL buffer of the `jupyter-current-client' and
+save the script buffer."
     (interactive)
     (if jupyter-current-client
         (let ((script-buffer (current-buffer)))
@@ -365,12 +378,14 @@
       (error "Buffer not associated with a REPL, see `jupyter-repl-associate-buffer'")))
 
   (defun jupyter-repl--switch-back ()
-    "Switch to the buffer that was active before last call to `jupyter-repl-pop-to-buffer-with-save'."
+    "Switch to the buffer that was active before last call to
+`jupyter-repl-pop-to-buffer-with-save'."
     (interactive)
     (when (buffer-live-p jupyter-repl--script-buffer)
       (switch-to-buffer-other-window jupyter-repl--script-buffer)))
 
-  (advice-add 'jupyter-repl-pop-to-buffer :override #'jupyter-repl-pop-to-buffer-with-save)
+  (advice-add 'jupyter-repl-pop-to-buffer
+              :override #'jupyter-repl-pop-to-buffer-with-save)
 
   ;; ;; This doesn't work, idk why
   ;; ;; MAYBE: this is probably a cleaner approach if I can get it to work?
@@ -383,7 +398,8 @@
   :hook
   (jupyter-repl-mode . (lambda ()
                          (define-key jupyter-repl-mode-map
-                                     [remap jupyter-repl-pop-to-buffer] 'jupyter-repl--switch-back))))
+                                     [remap jupyter-repl-pop-to-buffer]
+                                     'jupyter-repl--switch-back))))
 
 
 (use-package code-cells
@@ -471,13 +487,15 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package treesit-auto
   :demand t
-  :init (setq treesit-auto-install 'prompt)
-  :config (global-treesit-auto-mode))
+  :config
+  (setq treesit-auto-install 'prompt)
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Minibuffer Completion
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 
 (use-package vertico
@@ -488,7 +506,8 @@ point reaches the beginning or end of the buffer, stop there."
 
   ;; A few more useful configurations...
   ;; taken from https://github.com/minad/vertico
-  (setq enable-recursive-minibuffers t) ;; allow minibuffer commands while in minibuffer
+  (setq enable-recursive-minibuffers t) ; allow minibuffer commands while in minibuffer
+
 
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -745,9 +764,9 @@ point reaches the beginning or end of the buffer, stop there."
   (global-corfu-mode))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Programming Language Modes
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 ;;;; OCaml
 ;;   =====
@@ -758,7 +777,6 @@ point reaches the beginning or end of the buffer, stop there."
     (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
     (autoload 'merlin-mode "merlin" nil t nil)
     (load (expand-file-name "emacs/site-lisp/tuareg-site-file" opam-share))
-    ;; (setq merlin-command "/home/ross/.opam/default/bin/ocamlmerlin") ; TODO: shouldn't be necessary?
     ;; Automatically start it in OCaml buffers
     (add-hook 'tuareg-mode-hook 'merlin-mode t)
     (add-hook 'caml-mode-hook 'merlin-mode t)
@@ -786,8 +804,10 @@ point reaches the beginning or end of the buffer, stop there."
     (setenv (car var) (cadr var))))
 (if (executable-find "opam") (opam-env))
 
+
 ;;;; Julia
 ;;   =====
+
 (use-package julia-mode)
 
 (use-package julia-repl
@@ -802,6 +822,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;;;; Python
 ;;   ======
+
 (use-package python
   :config
   ;; Remove guess indent python message
@@ -826,12 +847,16 @@ point reaches the beginning or end of the buffer, stop there."
 
 (defun ross/eglot-workspace-config (server)
   (if (equal "pylsp" (plist-get (eglot--server-info server) :name))
-      (list :pylsp (list :plugins
-            (append (list :pycodestyle (list :enabled nil))
-                    (if-let (((ignore-errors (poetry-ensure-in-project) t))  ;; check if we're in a poetry project
-                             (venv (expand-file-name (poetry-get-virtualenv)))) ;; if we are - find the venv location
-                        (list :jedi (list :environment venv))
-                      nil))))))
+      (list :pylsp
+            (list :plugins
+                  (append (list :pycodestyle (list :enabled nil))
+                          (if-let
+                              ;; check if we're in a poetry project
+                              (((ignore-errors (poetry-ensure-in-project) t))
+                               ;; if we are - find the venv location
+                               (venv (expand-file-name (poetry-get-virtualenv)))) 
+                              (list :jedi (list :environment venv))
+                            nil))))))
 (setq-default eglot-workspace-configuration #'ross/eglot-workspace-config)
 
 
@@ -857,6 +882,13 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   :hook (python-mode-hook . blacken-mode))
 
 
+(use-package bqn-mode
+  :demand t
+  :init
+  (use-package bqn-keymap-mode :ensure nil)
+  (use-package bqn-glyph-mode  :ensure nil))
+
+
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
@@ -872,20 +904,36 @@ point reaches the beginning or end of the buffer, stop there."
          auto-mode-alist)))
 
 
-;; ---------------------------------------------------------------------------------------
-;;; Structural Editing
-;; ---------------------------------------------------------------------------------------
+(use-package yaml-ts-mode :ensure nil)
 
-;; TODO:
+
+;; -----------------------------------------------------------------------------
+;;; Structural Editing
+;; -----------------------------------------------------------------------------
+
+(use-package combobulate
+  :ensure
+  (:host github :repo "mickeynp/combobulate")
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode)))
 
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
 ;; https://github.com/mickeynp/combobulate
+;; https://github.com/ethan-leba/tree-edit
+;; https://github.com/drym-org/symex.el
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Messaging
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
+
 
 (use-package elfeed
   ;; RSS feed reader
@@ -900,22 +948,22 @@ point reaches the beginning or end of the buffer, stop there."
   (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Window Manager
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;; (use-package perspective-exwm)
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; Guix
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 (use-package guix)
 
 
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 ;;; TODO
-;; ---------------------------------------------------------------------------------------
+;; -----------------------------------------------------------------------------
 
 
 ;; dragstuff
