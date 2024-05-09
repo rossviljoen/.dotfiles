@@ -46,9 +46,12 @@ export ERRFILE=$XDG_CACHE_HOME/x11/xsession-errors
 
 # N.B. /tmp is an in-memory tmpfs on Arch. change to /var/tmp if OOM
 export TMPDIR=/tmp
+
+
 export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin
 export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:$RYE_HOME/shims
+export PATH=$PATH:$CARGO_HOME/bin
 
 
 # Various hacks etc.

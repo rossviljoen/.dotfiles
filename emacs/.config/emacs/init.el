@@ -44,14 +44,13 @@
 ;;; Elpaca package manager
 ;; -----------------------------------------------------------------------------
 
-(defvar elpaca-installer-version 0.6)
+(defvar elpaca-installer-version 0.7)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil
-                              :files
-                              (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :ref nil :depth 1
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
        (build (expand-file-name "elpaca/" elpaca-builds-directory))
@@ -63,14 +62,15 @@
     (when (< emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
         (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (call-process "git" nil buffer t "clone"
-                                       (plist-get order :repo) repo)))
+                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                 ,@(when-let ((depth (plist-get order :depth)))
+                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                 ,(plist-get order :repo) ,repo))))
                  ((zerop (call-process "git" nil buffer t "checkout"
                                        (or (plist-get order :ref) "--"))))
                  (emacs (concat invocation-directory invocation-name))
                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval"
-                                       "(byte-recompile-directory \".\" 0 'force)")))
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
                  ((require 'elpaca))
                  ((elpaca-generate-autoloads "elpaca" repo)))
             (progn (message "%s" (buffer-string)) (kill-buffer buffer))
@@ -153,7 +153,6 @@
 
   (setq-default indent-tabs-mode nil)
   (setq-default tab-width 4)
-  (savehist-mode 1)                     ; Minibuffer history
 
   (setq save-interprogram-paste-before-kill t
         apropos-do-all t
@@ -203,7 +202,7 @@
   (setq dired-recursive-copies (quote always))
   (setq dired-recursive-deletes (quote top))
   (setq dired-isearch-filenames t)
-  (use-package dired-x)
+  (use-package dired-x :ensure nil)
   :bind (:map dired-mode-map
               ("M-s f" . consult-recent-file)))
 
@@ -280,6 +279,17 @@
   (setq proced-show-remote-processes t))
 
 
+(use-package re-builder
+  :ensure nil
+  :config
+  (setq reb-re-syntax 'string))
+
+
+(use-package eglot
+  :ensure nil                           ; Use the builtin eglot
+  :hook (python-base-mode . eglot-ensure))
+
+
 ;; -----------------------------------------------------------------------------
 ;;; General Packages and Utilities
 ;; -----------------------------------------------------------------------------
@@ -316,6 +326,11 @@
 (use-package pdf-tools
   :init (pdf-tools-install))
 
+(use-package transient
+  ;; Magit sometimes requires a more recent version of transient than the
+  ;; built-in, so just install it anyway.
+  ;; https://github.com/progfolio/elpaca/issues/302
+  :ensure t)
 
 (use-package magit
   :bind ("C-x g" . magit-status))
@@ -328,9 +343,10 @@
   ("S-M-<return>" . vterm-toggle-cd)))
 
 
-(use-package eglot
-  :ensure nil                           ; Use the builtin eglot
-  :hook (python-base-mode . eglot-ensure))
+(use-package persistent-scratch
+  :ensure t
+  :commands persistent-scratch-setup-default
+  :hook (after-init . persistent-scratch-setup-default))
 
 
 (use-package jupyter
@@ -805,36 +821,16 @@ point reaches the beginning or end of the buffer, stop there."
   (setq python-indent-guess-indent-offset t)
   :hook (python-mode . (lambda () (setq tab-width 4))))
 
-(use-package poetry
+(use-package pet
+  ;; Finds the correct tool executables in the venv (pylsp etc.)
   :config
-  ;; Checks for the correct virtualenv. Better strategy IMO because the default
-  ;; one is quite slow.
-  (setq poetry-tracking-strategy 'switch-buffer)
-  :hook (python-base-mode . poetry-tracking-mode))
-
-;; (defun my/eglot-workspace-config (server)
-;;     (if-let ((venv (simple-venv-find))
-;;         ((not (eq venv 'none)))
-;;         (vp (file-name-directory venv))
-;;         (vn (file-name-nondirectory venv)))
-;;    (list (cons :python
-;;           (list :venvPath vp :venv vn
-;;            :pythonPath (simple-venv-interpreter venv))))))
+  (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 (defun ross/eglot-workspace-config (server)
   (if (equal "pylsp" (plist-get (eglot--server-info server) :name))
-      (list :pylsp
-            (list :plugins
-                  (append (list :pycodestyle (list :enabled nil))
-                          (if-let
-                              ;; check if we're in a poetry project
-                              (((ignore-errors (poetry-ensure-in-project) t))
-                               ;; if we are - find the venv location
-                               (venv (expand-file-name (poetry-get-virtualenv)))) 
-                              (list :jedi (list :environment venv))
-                            nil))))))
+      ;; Broken for python 3.12
+      (list :pylsp (list :plugins (list :jedi_signature_help (list :enabled nil))))))
 (setq-default eglot-workspace-configuration #'ross/eglot-workspace-config)
-
 
 ;; ;; <OPTIONAL> Numpy style docstring for Python.  See:
 ;; ;; https://github.com/douglasdavis/numpydoc.el.  There are other packages
@@ -847,22 +843,28 @@ point reaches the beginning or end of the buffer, stop there."
               ("C-c C-n" . numpydoc-generate)))
 
 
-;; ;; <OPTIONAL> Buffer formatting on save using black.
-;; ;; See: https://github.com/pythonic-emacs/blacken.
-;; (use-package blacken
-;;   :ensure t
-;;   :defer t
-;;   :custom
-;;   (blacken-allow-py36 t)
-;;   (blacken-skip-string-normalization t)
-;;   :hook (python-mode-hook . blacken-mode))
-
+;;;; Misc
+;;   ======
 
 (use-package bqn-mode
   :demand t
   :init
   (use-package bqn-keymap-mode :ensure nil)
-  (use-package bqn-glyph-mode  :ensure nil))
+  (use-package bqn-glyph-mode  :ensure nil)
+  :config
+  (defun run-or-switch-to-bqn ()
+    "Run and switch to inferior BQN process if it does not
+ already exist. Otherwise switch to the already existing process
+ buffer."
+    (interactive)
+    (pop-to-buffer (bqn-comint-buffer)))
+
+  :bind
+  (:map bqn-mode-map
+        ("C-c C-z" . run-or-switch-to-bqn)
+        ("C-c C-c" . bqn-comint-send-buffer)
+        ("C-c C-r" . bqn-comint-send-region)
+        ("C-c C-e" . bqn-comint-send-dwim)))
 
 
 (use-package markdown-mode
@@ -887,23 +889,23 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Structural Editing
 ;; -----------------------------------------------------------------------------
 
-(use-package combobulate
-  :ensure
-  (:host github :repo "mickeynp/combobulate")
-  :hook
-  ((python-ts-mode . combobulate-mode)
-   (js-ts-mode . combobulate-mode)
-   (css-ts-mode . combobulate-mode)
-   (yaml-ts-mode . combobulate-mode)
-   (json-ts-mode . combobulate-mode)
-   (typescript-ts-mode . combobulate-mode)
-   (tsx-ts-mode . combobulate-mode)))
+;; (use-package combobulate
+;;   :ensure
+;;   (:host github :repo "mickeynp/combobulate")
+;;   :hook
+;;   ((python-ts-mode . combobulate-mode)
+;;    (js-ts-mode . combobulate-mode)
+;;    (css-ts-mode . combobulate-mode)
+;;    (yaml-ts-mode . combobulate-mode)
+;;    (json-ts-mode . combobulate-mode)
+;;    (typescript-ts-mode . combobulate-mode)
+;;    (tsx-ts-mode . combobulate-mode)))
 
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
+;; https://karthinks.com/software/persistent-prefix-keymaps-in-emacs/
 ;; https://github.com/mickeynp/combobulate
 ;; https://github.com/ethan-leba/tree-edit
-;; https://github.com/drym-org/symex.el
 
 
 ;; -----------------------------------------------------------------------------
@@ -920,6 +922,7 @@ point reaches the beginning or end of the buffer, stop there."
                 ("http://verisimilitudes.net/rss.xml" programming)
                 ("http://ngnghm.github.io/feeds/all.rss.xml" programming)
                 ("http://www.loper-os.org/?feed=rss" programming)
+                ("https://mmapped.blog/feed.xml" programming)
                 ("https://hbfs.wordpress.com/feed/" comp-sci)))
   (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
 
@@ -947,3 +950,15 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Actually understand:
 ;;  - corfu
 ;;  - consult
+
+
+;; https://github.com/karthink/popper
+
+
+;; -----------------------------------------------------------------------------
+;; Final Settings
+;; -----------------------------------------------------------------------------
+
+;; Saves minibuffer history, has to be loaded after some packages like
+;; Combobulate
+(savehist-mode 1)

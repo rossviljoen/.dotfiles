@@ -251,6 +251,20 @@ bindsym $mod+r mode "resize"
     # bindsym XF86Search exec bemenu-run
 
 #
+# Screenshots:
+#
+
+# Super+P: Current window
+# Super+Shift+p: Select area
+# Super+Alt+p Current output
+# Super+Ctrl+p Select a window
+
+    bindsym $mod+p       exec grimshot save active
+    bindsym $mod+Shift+p exec grimshot save area
+    bindsym $mod+Mod1+p  exec grimshot save output
+    bindsym $mod+Ctrl+p  exec grimshot save window
+
+#
 # Status Bar:
 #
 # Read `man 5 sway-bar` for more information about this section.
