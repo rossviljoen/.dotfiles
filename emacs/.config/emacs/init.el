@@ -488,6 +488,18 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package treesit-auto
   :config
   (setq treesit-auto-install 'prompt)
+
+  (setq bqn-tsauto-config
+      (make-treesit-auto-recipe
+       :lang 'bqn
+       :ts-mode 'bqn-ts-mode
+       :remap '(bqn-mode)
+       :url "https://github.com/shnarazk/tree-sitter-bqn"
+       :revision "master"
+       :source-dir "src"
+       :ext "\\.bqn\\'"))
+  (add-to-list 'treesit-auto-recipe-list bqn-tsauto-config)
+
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode 1))
 
@@ -816,6 +828,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   ======
 
 (use-package python
+  :ensure nil
   :config
   ;; Remove guess indent python message
   (setq python-indent-guess-indent-offset t)
