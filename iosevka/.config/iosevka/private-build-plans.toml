@@ -1,0 +1,18 @@
+### See https://github.com/be5invis/Iosevka/blob/master/doc/custom-build.md for comprehensive
+### documentation of the options in this file
+
+# Build this with paru -S ttf-iosevka-custom-git
+
+[buildPlans.IosevkaCustom]          # <IosevkaRv> is your plan name
+family = "Iosevka Custom"           # Font menu family name
+spacing = "normal"              # Optional; Values: `normal`, `term`, `fontconfig-mono`, or `fixed`
+serifs = "slab"                 # Optional; Values: `sans` or `slab`
+exportGlyphNames = false        # Set this to true for ligature support in Kitty (increased file size)
+noLigation = true               # Disable all ligatures
+
+[buildPlans.IosevkaCustom.variants]
+inherits = "ss15"               # IBM Plex Mono Style
+
+[buildPlans.IosevkaCustom.variants.design]
+apl-form = 'enable'  # Enable harmonized alternate forms APL operators
+
