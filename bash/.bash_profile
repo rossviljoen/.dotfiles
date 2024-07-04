@@ -16,4 +16,4 @@
 [[ -f ~/.profile ]] && . ~/.profile
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
-[ "$(tty)" = "/dev/tty1" ] && exec sway
+[ "$(tty)" = "/dev/tty1" ] && exec sway --unsupported-gpu
