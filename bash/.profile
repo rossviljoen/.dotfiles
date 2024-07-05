@@ -34,6 +34,7 @@ export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
 # Other non-XDG home dirs
 export JULIA_DEPOT_PATH=$DEV/julia
+export JULIAUP_DEPOT_PATH=$DEV/julia
 export GOPATH=$DEV/go
 
 

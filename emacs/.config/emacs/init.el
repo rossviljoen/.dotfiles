@@ -258,15 +258,10 @@
 
 (use-package display-line-numbers
   :ensure nil
+  :hook
+  (text-mode . display-line-numbers-mode)
+  (prog-mode . display-line-numbers-mode)
   :config
-  ;; Exclude some modes from global line numbers
-  (defcustom display-line-numbers-exempt-modes
-    '(vterm-mode eshell-mode shell-mode term-mode ansi-term-mode jupyter-repl-mode)
-    "Major modes on which to disable line numbers."
-    :group 'display-line-numbers
-    :type 'list
-    :version "green")
-  (global-display-line-numbers-mode 1)
   (setq display-line-numbers-type t))
 
 
@@ -287,7 +282,9 @@
 
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
-  :hook (python-base-mode . eglot-ensure))
+  :hook
+  (python-base-mode . eglot-ensure)
+  (julia-mode . eglot-ensure))
 
 
 ;; -----------------------------------------------------------------------------
@@ -410,6 +407,9 @@ save the script buffer."
   :ensure (:host github :repo "astoff/code-cells.el" :branch "master")
   :hook ((julia-mode python-base-mode) . code-cells-mode)
   :config
+  (defun rv/julia-repl-send-region (start end)
+    (julia-repl--send-string
+     (buffer-substring-no-properties start end)))
   (let ((map code-cells-mode-map))
     (define-key map (kbd "M-p") 'code-cells-backward-cell)
     (define-key map (kbd "M-n") 'code-cells-forward-cell)
@@ -422,7 +422,9 @@ save the script buffer."
                 (code-cells-command 'jupyter-eval-region :use-region :pulse))
     ;; (define-key map [remap julia-repl-send-region-or-line]
     ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
-    ))
+    (define-key map [remap julia-repl-send-region-or-line]
+                (code-cells-command 'rv/julia-repl-send-region :use-region :pulse))))
+
 
 
 (use-package epithet
@@ -814,6 +816,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package julia-mode)
 
+;; https://github.com/JuliaEditorSupport/julia-ts-mode/issues/21#issuecomment-2126885445
+(use-package julia-ts-mode)
+
 (use-package julia-repl
   :config
   (setq julia-repl-switches "--project=@.") ;; Activate first parent project found
@@ -821,8 +826,12 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
-;; MAYBE: Julia snail?
+(use-package eglot-jl
+  ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
+  ;; is broken for eglot.
+  :config (eglot-jl-init))
 
+;; MAYBE: Julia snail
 
 ;;;; Python
 ;;   ======
@@ -902,6 +911,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Structural Editing
 ;; -----------------------------------------------------------------------------
 
+(use-package expreg)
+
 ;; (use-package combobulate
 ;;   :ensure
 ;;   (:host github :repo "mickeynp/combobulate")
@@ -975,3 +986,4 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Saves minibuffer history, has to be loaded after some packages like
 ;; Combobulate
 (savehist-mode 1)
+(put 'downcase-region 'disabled nil)
