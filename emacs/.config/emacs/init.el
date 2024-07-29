@@ -922,6 +922,7 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package combobulate
   :ensure
   (:host github :repo "rossviljoen/combobulate" :branch "julia")
+  :demand t
   :hook
   (
    (julia-ts-mode . combobulate-mode)
