@@ -841,7 +841,7 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   ;; Remove guess indent python message
   (setq python-indent-guess-indent-offset t)
-  :hook (python-mode . (lambda () (setq tab-width 4))))
+  :hook (python-base-mode . (lambda () (setq tab-width 4))))
 
 (use-package pet
   ;; Finds the correct tool executables in the venv (pylsp etc.)
