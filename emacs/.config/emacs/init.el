@@ -282,9 +282,10 @@
 
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
-  :hook
-  (python-base-mode . eglot-ensure)
-  (julia-mode . eglot-ensure))
+  ;; :hook
+  ;; (python-base-mode . eglot-ensure)
+  ;; (julia-mode . eglot-ensure)
+  )
 
 
 ;; -----------------------------------------------------------------------------
@@ -333,7 +334,9 @@
   :bind ("C-x g" . magit-status))
 
 
-(use-package vterm)
+(use-package vterm
+  :config
+  (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
 (use-package vterm-toggle
   :bind
   (("M-<return>" . vterm-toggle)
@@ -828,7 +831,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package eglot-jl
   ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
-  ;; is broken for eglot.
+  ;; is broken for eglot. Located at eglot-jl-language-server
   :config (eglot-jl-init))
 
 ;; MAYBE: Julia snail
@@ -907,23 +910,30 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package yaml-ts-mode :ensure nil)
 
 
+(use-package csv-mode)
+
+
 ;; -----------------------------------------------------------------------------
 ;;; Structural Editing
 ;; -----------------------------------------------------------------------------
 
 (use-package expreg)
 
-;; (use-package combobulate
-;;   :ensure
-;;   (:host github :repo "mickeynp/combobulate")
-;;   :hook
-;;   ((python-ts-mode . combobulate-mode)
-;;    (js-ts-mode . combobulate-mode)
-;;    (css-ts-mode . combobulate-mode)
-;;    (yaml-ts-mode . combobulate-mode)
-;;    (json-ts-mode . combobulate-mode)
-;;    (typescript-ts-mode . combobulate-mode)
-;;    (tsx-ts-mode . combobulate-mode)))
+(use-package combobulate
+  :ensure
+  (:host github :repo "rossviljoen/combobulate" :branch "julia")
+  :demand t
+  :hook
+  (
+   (julia-ts-mode . combobulate-mode)
+   ;; (python-ts-mode . combobulate-mode)
+   ;; (js-ts-mode . combobulate-mode)
+   ;; (css-ts-mode . combobulate-mode)
+   ;; (yaml-ts-mode . combobulate-mode)
+   ;; (json-ts-mode . combobulate-mode)
+   ;; (typescript-ts-mode . combobulate-mode)
+   ;; (tsx-ts-mode . combobulate-mode)
+   ))
 
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
