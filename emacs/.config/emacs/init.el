@@ -918,6 +918,10 @@ point reaches the beginning or end of the buffer, stop there."
 ;; -----------------------------------------------------------------------------
 
 (use-package expreg)
+  :bind
+  (("C-=" . expreg-expand)
+   ("C--" . expreg-contract)))
+
 
 (use-package combobulate
   :ensure
