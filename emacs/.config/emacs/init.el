@@ -917,7 +917,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Structural Editing
 ;; -----------------------------------------------------------------------------
 
-(use-package expreg)
+(use-package expreg
   :bind
   (("C-=" . expreg-expand)
    ("C--" . expreg-contract)))
