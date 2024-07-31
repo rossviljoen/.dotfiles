@@ -214,6 +214,12 @@
         (expand-file-name "var/tramp/" user-emacs-directory))
   (setq tramp-chunksize 2000)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+  ;; (add-to-list 'tramp-connection-properties
+  ;; (list nil "direct-async-process" t))
+  (setq tramp-ssh-controlmaster-options
+        (concat
+         "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+         "-o ControlMaster=auto -o ControlPersist=yes"))
   (connection-local-set-profile-variables
    'remote-bash
    '((shell-file-name . "/bin/bash")
