@@ -339,15 +339,14 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
-
-(use-package vterm
+(use-package eat
+  :custom
+  (eat-kill-buffer-on-exit t)
   :config
-  (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
-(use-package vterm-toggle
-  :bind
-  (("M-<return>" . vterm-toggle)
-  ("S-M-<return>" . vterm-toggle-cd)))
-
+  (delete [?\C-u] eat-semi-char-non-bound-keys) ; make C-u work in Eat terminals like in normal terminals
+  (delete [?\C-g] eat-semi-char-non-bound-keys) ; ditto for C-g
+  (eat-update-semi-char-mode-map)
+  (eat-reload))
 
 (use-package persistent-scratch
   :ensure t
@@ -416,23 +415,17 @@ save the script buffer."
   :ensure (:host github :repo "astoff/code-cells.el" :branch "master")
   :hook ((julia-mode python-base-mode) . code-cells-mode)
   :config
-  (defun rv/julia-repl-send-region (start end)
-    (julia-repl--send-string
-     (buffer-substring-no-properties start end)))
   (let ((map code-cells-mode-map))
     (define-key map (kbd "M-p") 'code-cells-backward-cell)
     (define-key map (kbd "M-n") 'code-cells-forward-cell)
+    (define-key map (kbd "C-c C-c") 'code-cells-eval)
     (define-key map (kbd "C-c C-SPC") 'code-cells-mark-cell)
     (define-key map (kbd "C-c C-w") (code-cells-command 'kill-region :use-region))
     (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region))
-    (define-key map [remap python-shell-send-region]
-                (code-cells-command 'python-shell-send-region :use-region :pulse))
-    (define-key map [remap jupyter-eval-line-or-region]
-                (code-cells-command 'jupyter-eval-region :use-region :pulse))
-    ;; (define-key map [remap julia-repl-send-region-or-line]
-    ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
-    (define-key map [remap julia-repl-send-region-or-line]
-                (code-cells-command 'rv/julia-repl-send-region :use-region :pulse))))
+    (define-key map [remap python-shell-send-region] 'code-cells-eval)
+    (define-key map [remap jupyter-eval-line-or-region] 'code-cells-eval))
+  (add-to-list 'code-cells-eval-region-commands
+               '(julia-snail-mode . julia-snail-send-code-cell)))
 
 
 
@@ -828,19 +821,12 @@ point reaches the beginning or end of the buffer, stop there."
 ;; https://github.com/JuliaEditorSupport/julia-ts-mode/issues/21#issuecomment-2126885445
 (use-package julia-ts-mode)
 
-(use-package julia-repl
-  :config
-  (setq julia-repl-switches "--project=@.") ;; Activate first parent project found
-  (julia-repl-set-terminal-backend 'vterm)
-  :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
-  :hook julia-mode)
+(use-package julia-snail
+  :custom
+  (julia-snail-terminal-type :eat)
+  :hook
+  (julia-mode . julia-snail-mode))
 
-(use-package eglot-jl
-  ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
-  ;; is broken for eglot. Located at eglot-jl-language-server
-  :config (eglot-jl-init))
-
-;; MAYBE: Julia snail
 
 ;;;; Python
 ;;   ======
@@ -900,7 +886,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
+  :init (setq markdown-command "pandoc"))
 
 
 (when (executable-find "agda-mode")
