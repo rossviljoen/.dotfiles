@@ -22,6 +22,7 @@ export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
 export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export CARGO_HOME=$XDG_DATA_HOME/cargo
 export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export DENO_INSTALL_ROOT=$XDG_DATA_HOME/deno
 
 export RYE_HOME=$XDG_CONFIG_HOME/rye
 export PYTHON_HISTORY=$XDG_STATE_HOME/python/history
@@ -53,6 +54,7 @@ export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin
 export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:$RYE_HOME/shims
 export PATH=$PATH:$CARGO_HOME/bin
+export PATH=$PATH:$DENO_INSTALL_ROOT/bin
 
 
 # Various hacks etc.
