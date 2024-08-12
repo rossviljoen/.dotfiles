@@ -339,15 +339,14 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
-
-(use-package vterm
+(use-package eat
+  :custom
+  (eat-kill-buffer-on-exit t)
   :config
-  (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
-(use-package vterm-toggle
-  :bind
-  (("M-<return>" . vterm-toggle)
-  ("S-M-<return>" . vterm-toggle-cd)))
-
+  (delete [?\C-u] eat-semi-char-non-bound-keys) ; make C-u work in Eat terminals like in normal terminals
+  (delete [?\C-g] eat-semi-char-non-bound-keys) ; ditto for C-g
+  (eat-update-semi-char-mode-map)
+  (eat-reload))
 
 (use-package persistent-scratch
   :ensure t
@@ -831,7 +830,7 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package julia-repl
   :config
   (setq julia-repl-switches "--project=@.") ;; Activate first parent project found
-  (julia-repl-set-terminal-backend 'vterm)
+  (julia-repl-set-terminal-backend 'eat)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
