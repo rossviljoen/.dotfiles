@@ -33,11 +33,12 @@
 
 (setq garbage-collection-messages t)
 (setq gc-cons-threshold (* 100 1024 1024))
+;; NOTE: this seems to fire GC excessively when using TRAMP
 ;; Run GC whenever Emacs loses focus
 ;; https://news.ycombinator.com/item?id=39191012
-(add-function :after
-              after-focus-change-function
-              (lambda () (unless (frame-focus-state) (garbage-collect))))
+;; (add-function :after
+;;               after-focus-change-function
+;;               (lambda () (unless (frame-focus-state) (garbage-collect))))
 
 
 ;; -----------------------------------------------------------------------------
@@ -219,7 +220,7 @@
   (setq tramp-ssh-controlmaster-options
         (concat
          "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
-         "-o ControlMaster=auto -o ControlPersist=yes"))
+         "-o ControlMaster=auto -o ControlPersist=no"))
   (connection-local-set-profile-variables
    'remote-bash
    '((shell-file-name . "/bin/bash")
@@ -239,6 +240,7 @@
   :config
   (setq ibuffer-show-empty-filter-groups nil)
   (setq ibuffer-saved-filter-groups
+        ;; TODO: group by project?
         '(("Home"
            ("Programming" (mode . prog-mode))
            ("Dired" (mode . dired-mode))
@@ -298,6 +300,10 @@
 ;;; General Packages and Utilities
 ;; -----------------------------------------------------------------------------
 
+;; TODO: setup bindings
+(use-package helpful)
+
+
 ;; Initialise emacs PATH from shell PATH
 (use-package exec-path-from-shell
   :demand t
@@ -330,11 +336,13 @@
 (use-package pdf-tools
   :init (pdf-tools-install))
 
+
 (use-package transient
   ;; Magit sometimes requires a more recent version of transient than the
   ;; built-in, so just install it anyway.
   ;; https://github.com/progfolio/elpaca/issues/302
   :ensure t)
+
 
 (use-package magit
   :bind ("C-x g" . magit-status))
@@ -899,7 +907,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
+  :init (setq markdown-command "pandoc"))
 
 
 (when (executable-find "agda-mode")
@@ -912,8 +920,7 @@ point reaches the beginning or end of the buffer, stop there."
          auto-mode-alist)))
 
 
-(use-package yaml-ts-mode :ensure nil)
-
+(use-package yaml-mode)
 
 (use-package csv-mode)
 
