@@ -304,6 +304,27 @@
 (use-package helpful)
 
 
+(use-package ace-window
+  :bind ("M-o" . ace-window)
+  :config (ace-window-display-mode))
+
+
+(use-package popper
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          eat-mode
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))                ; For echo area hints
+
+
 ;; Initialise emacs PATH from shell PATH
 (use-package exec-path-from-shell
   :demand t

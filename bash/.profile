@@ -1,7 +1,7 @@
 #!/bin/sh
 export EDITOR="emacs"
 export VISUAL="emacs"
-
+export BROWSER="firefox"
 
 # Set XDG directories
 export XDG_CONFIG_HOME=$HOME/.config
