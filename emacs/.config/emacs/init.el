@@ -220,7 +220,7 @@
   (setq tramp-ssh-controlmaster-options
         (concat
          "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
-         "-o ControlMaster=auto -o ControlPersist=no"))
+         "-o ControlMaster=auto -o ControlPersist=60m"))
   (connection-local-set-profile-variables
    'remote-bash
    '((shell-file-name . "/bin/bash")
