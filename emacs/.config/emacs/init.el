@@ -216,11 +216,11 @@
   (setq tramp-chunksize 2000)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   ;; (add-to-list 'tramp-connection-properties
-  ;; (list nil "direct-async-process" t))
-  (setq tramp-ssh-controlmaster-options
-        (concat
-         "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
-         "-o ControlMaster=auto -o ControlPersist=60m"))
+               ;; (list nil "direct-async-process" t))
+  (setq tramp-ssh-controlmaster-options nil)
+        ;; (concat
+        ;;  "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+        ;;  "-o ControlMaster=auto -o ControlPersist=60m"))
   (connection-local-set-profile-variables
    'remote-bash
    '((shell-file-name . "/bin/bash")
@@ -332,7 +332,7 @@
   (exec-path-from-shell-initialize))
 
 
-;;   Needed for GPG passphrase entry when signing magit commits
+;; Needed for GPG passphrase entry when signing magit commits
 (use-package pinentry
   :demand t
   :config
@@ -368,14 +368,24 @@
 (use-package magit
   :bind ("C-x g" . magit-status))
 
+
+(use-package diff-hl
+  :config
+  (diff-hl-margin-mode)
+  (global-diff-hl-mode))
+
+
 (use-package eat
   :custom
   (eat-kill-buffer-on-exit t)
   :config
+  (setq eat-shell "TERM=xterm-256color /bin/bash")
+  (setq eat-tramp-shells '(("ssh" . "TERM=xterm-256color /bin/bash") ("docker" . "/bin/sh")))
   (delete [?\C-u] eat-semi-char-non-bound-keys) ; make C-u work in Eat terminals like in normal terminals
   (delete [?\C-g] eat-semi-char-non-bound-keys) ; ditto for C-g
   (eat-update-semi-char-mode-map)
   (eat-reload))
+
 
 (use-package persistent-scratch
   :ensure t
@@ -463,7 +473,6 @@ save the script buffer."
                 (code-cells-command 'rv/julia-repl-send-region :use-region :pulse))))
 
 
-
 (use-package epithet
   :ensure (:host github :repo "oantolin/epithet")
   ;; use 'epithet-rename-buffer' to rename a buffer
@@ -475,6 +484,9 @@ save the script buffer."
    . epithet-rename-buffer)
   ((compilation-start compilation-finish)
    . epithet-rename-buffer-ignoring-arguments))
+
+
+(use-package breadcrumb :config (breadcrumb-mode))
 
 
 (use-package hl-todo
@@ -539,6 +551,7 @@ point reaches the beginning or end of the buffer, stop there."
        :ext "\\.bqn\\'"))
   (add-to-list 'treesit-auto-recipe-list bqn-tsauto-config)
 
+  (delete 'yaml treesit-auto-langs)
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode 1))
 
@@ -902,8 +915,21 @@ point reaches the beginning or end of the buffer, stop there."
               ("C-c C-n" . numpydoc-generate)))
 
 
+;;;; Javascript/JSX/Typescript
+;;   =========================
+;; `npm install -g typescript-language-server'
+
+(use-package js
+  :ensure nil
+  :bind (([remap js-find-symbol] . xref-find-definitions)))
+
+(use-package flymake-eslint
+  :config (setq flymake-eslint-prefer-json-diagnostics t)
+  :hook (js-base-mode . flymake-eslint-enable))
+
+
 ;;;; Misc
-;;   ======
+;;   ====
 
 (use-package bqn-mode
   :demand t
