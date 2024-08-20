@@ -383,6 +383,8 @@
   (setq eat-tramp-shells '(("ssh" . "TERM=xterm-256color /bin/bash") ("docker" . "/bin/sh")))
   (delete [?\C-u] eat-semi-char-non-bound-keys) ; make C-u work in Eat terminals like in normal terminals
   (delete [?\C-g] eat-semi-char-non-bound-keys) ; ditto for C-g
+  (add-to-list 'eat-semi-char-non-bound-keys [?\e ?\o])
+  (add-to-list 'eat-semi-char-non-bound-keys [?\e ?\`])
   (eat-update-semi-char-mode-map)
   (eat-reload))
 
