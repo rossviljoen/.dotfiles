@@ -50,19 +50,28 @@ export ERRFILE=$XDG_CACHE_HOME/x11/xsession-errors
 export TMPDIR=/tmp
 
 
-export PATH=$PATH:$XDG_CONFIG_HOME/emacs/bin
-export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$RYE_HOME/shims
-export PATH=$PATH:$CARGO_HOME/bin
-export PATH=$PATH:$DENO_INSTALL_ROOT/bin
+export PATH=$XDG_CONFIG_HOME/emacs/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+export PATH=$RYE_HOME/shims:$PATH
+export PATH=$CARGO_HOME/bin:$PATH
+export PATH=$DENO_INSTALL_ROOT/bin:$PATH
 
 
 # Various hacks etc.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
 export MAKEFLAGS="-j$(expr $(nproc) - 2)"
 
+
 # This is needed to use Jax from Julia through PythonCall
 # see: https://github.com/JuliaPy/PyCall.jl/issues/722
 # https://github.com/JuliaPy/PyCall.jl/issues/990
 # export LD_PRELOAD=/usr/lib64/libstdc++.so.6
+
+
+GUIX_PROFILE="$HOME/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+export GUIX_LOCPATH=$GUIX_PROFILE/lib/locale
+
+GUIX_PROFILE="$HOME/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
 

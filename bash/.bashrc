@@ -29,3 +29,11 @@ PS1=$PS1'\[$(vterm_prompt_end)\]'
 [ -x "$(command -v direnv)" ] && eval "$(direnv hook bash)"
 
 export GPG_TTY=$(tty)  # apparently needed for pinentry?
+
+# Automatically added by the Guix install script.
+if [ -n "$GUIX_ENVIRONMENT" ]; then
+    if [[ $PS1 =~ (.*)"\\$" ]]; then
+        PS1="${BASH_REMATCH[1]} [env]\\\$ "
+    fi
+fi
+
