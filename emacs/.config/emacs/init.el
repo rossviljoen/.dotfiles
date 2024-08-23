@@ -300,6 +300,9 @@
 ;;; General Packages and Utilities
 ;; -----------------------------------------------------------------------------
 
+;; TODO: terminal emacs setup
+;; term-keys, mosh, wezterm
+
 ;; TODO: setup bindings
 (use-package helpful)
 
