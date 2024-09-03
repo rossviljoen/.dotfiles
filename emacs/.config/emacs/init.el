@@ -378,20 +378,14 @@
   (diff-hl-margin-mode)
   (global-diff-hl-mode))
 
-
-(use-package eat
-  :custom
-  (eat-kill-buffer-on-exit t)
+(use-package vterm
   :config
-  (setq eat-shell "TERM=xterm-256color /bin/bash")
-  (setq eat-tramp-shells '(("ssh" . "TERM=xterm-256color /bin/bash") ("docker" . "/bin/sh")))
-  (delete [?\C-u] eat-semi-char-non-bound-keys) ; make C-u work in Eat terminals like in normal terminals
-  (delete [?\C-g] eat-semi-char-non-bound-keys) ; ditto for C-g
-  (add-to-list 'eat-semi-char-non-bound-keys [?\e ?\o])
-  (add-to-list 'eat-semi-char-non-bound-keys [?\e ?\`])
-  (eat-update-semi-char-mode-map)
-  (eat-reload))
-
+  (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
+(use-package vterm-toggle
+  ;; :bind
+  ;; (("M-<return>" . vterm-toggle)
+   ;; ("S-M-<return>" . vterm-toggle-cd))
+  )
 
 (use-package persistent-scratch
   :ensure t
@@ -878,7 +872,7 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package julia-repl
   :config
   (setq julia-repl-switches "--project=@.") ;; Activate first parent project found
-  (julia-repl-set-terminal-backend 'eat)
+  (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
