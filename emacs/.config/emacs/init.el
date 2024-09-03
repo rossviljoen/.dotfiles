@@ -109,7 +109,7 @@
   ;; Set font to use the system monospace, and make sure it's used for
   ;; mathematical symbols as well (necessary for BQN).
   (add-to-list 'default-frame-alist
-               '(font . "monospace-12:weight=light"))
+               '(font . "monospace-11:weight=light"))
   (set-fontset-font "fontset-default" 'mathematical "monospace")
 
   (setq user-full-name "Ross Viljoen"
@@ -322,6 +322,7 @@
           "Output\\*$"
           "\\*Async Shell Command\\*"
           eat-mode
+          vterm-mode
           help-mode
           compilation-mode))
   (popper-mode +1)
@@ -955,6 +956,8 @@ point reaches the beginning or end of the buffer, stop there."
         ("C-c C-c" . bqn-comint-send-buffer)
         ("C-c C-r" . bqn-comint-send-region)
         ("C-c C-e" . bqn-comint-send-dwim)))
+
+(use-package uiua-ts-mode)
 
 
 (use-package markdown-mode
