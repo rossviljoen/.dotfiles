@@ -381,11 +381,6 @@
 (use-package vterm
   :config
   (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
-(use-package vterm-toggle
-  ;; :bind
-  ;; (("M-<return>" . vterm-toggle)
-   ;; ("S-M-<return>" . vterm-toggle-cd))
-  )
 
 (use-package persistent-scratch
   :ensure t
