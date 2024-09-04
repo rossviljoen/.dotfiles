@@ -61,6 +61,7 @@ export PATH=$DENO_INSTALL_ROOT/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
 export MAKEFLAGS="-j$(expr $(nproc) - 2)"
 
+export JULIA_PKG_USE_CLI_GIT=true
 
 # This is needed to use Jax from Julia through PythonCall
 # see: https://github.com/JuliaPy/PyCall.jl/issues/722

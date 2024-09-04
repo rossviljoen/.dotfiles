@@ -871,10 +871,25 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
+;; (use-package julia-snail
+  ;; :hook julia-mode)
+
 (use-package eglot-jl
   ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
   ;; is broken for eglot. Located at eglot-jl-language-server
-  :config (eglot-jl-init))
+  :config (eglot-jl-init)
+  ;; TODO: better automation for this? upstream it?
+  ;; NOTE: To create the sysimage
+  ;; (setq eglot-jl-julia-flags
+        ;; (list (concat "--trace-compile="
+                      ;; (expand-file-name "precompile.jl" eglot-jl-language-server-project))))
+  ;; Then, in `eglot-jl-language-server-project', run
+  ;; julia --project -e "using PackageCompiler; create_sysimage(["LanguageServer", "SymbolServer"]; sysimage_path="eglot-jl-sysimage.so", precompile_statements_file="precompile.jl")"
+  (let ((sysimage-file
+         (expand-file-name "eglot-jl-sysimage.so" eglot-jl-language-server-project)))
+    (if (file-exists-p sysimage-file)
+        (setq eglot-jl-julia-flags
+              (list (concat "--sysimage=" sysimage-file))))))
 
 ;; MAYBE: Julia snail
 
