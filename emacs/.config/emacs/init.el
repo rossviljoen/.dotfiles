@@ -884,7 +884,9 @@ point reaches the beginning or end of the buffer, stop there."
   (:host github :repo "RalphAS/eglot-jl" :branch "ras/languageid")
   ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
   ;; is broken for eglot. Located at eglot-jl-language-server
-  :config (eglot-jl-init)
+  :config
+  (eglot-jl-init)
+  (setq eglot-connect-timeout 3000)
   ;; TODO: better automation for this? upstream it?
   ;; NOTE: To create the sysimage
   ;; (setq eglot-jl-julia-flags
