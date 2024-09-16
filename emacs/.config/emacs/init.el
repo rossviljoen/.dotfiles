@@ -290,6 +290,8 @@
 
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
+  :config
+  (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -943,9 +945,9 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure nil
   :bind (([remap js-find-symbol] . xref-find-definitions)))
 
-(use-package flymake-eslint
-  :config (setq flymake-eslint-prefer-json-diagnostics t)
-  :hook (js-base-mode . flymake-eslint-enable))
+;; (use-package flymake-eslint
+  ;; :config (setq flymake-eslint-prefer-json-diagnostics t)
+  ;; :hook (js-base-mode . flymake-eslint-enable))
 
 
 ;;;; Misc
