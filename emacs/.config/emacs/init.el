@@ -109,7 +109,7 @@
   ;; Set font to use the system monospace, and make sure it's used for
   ;; mathematical symbols as well (necessary for BQN).
   (add-to-list 'default-frame-alist
-               '(font . "monospace-11:weight=light"))
+               '(font . "monospace-10"))
   (set-fontset-font "fontset-default" 'mathematical "monospace")
 
   (setq user-full-name "Ross Viljoen"
@@ -349,11 +349,15 @@
   :config
   (pinentry-start))
 
+;; (use-package solarized-theme
+;;   :demand t
+;;   :config
+;;   (load-theme 'solarized-light t))
 
-(use-package solarized-theme
+(use-package ef-themes
   :demand t
   :config
-  (load-theme 'solarized-light t))
+  (load-theme 'ef-autumn t))
 
 
 (use-package smooth-scrolling
@@ -396,7 +400,31 @@
 
 
 (use-package jupyter
-  :init (setq jupyter-repl-echo-eval-p t)
+  ;; :ensure (:host github :repo "emacs-jupyter/jupyter" :ref "487a755")
+  :ensure t
+  :init
+  (setq jupyter-use-zmq nil)
+  (setq jupyter-repl-echo-eval-p t)
+  (setq jupyter-executable "/home/rviljoen/.local/bin/jupyter") ;; TODO: fix this
+
+  ;; https://github.com/emacs-jupyter/jupyter/issues/500
+  (defun my-jupyter-api-http-request--ignore-login-error-a
+      (func url endpoint method &rest data)
+    (cond
+     ((member endpoint '("login"))
+      (ignore-error (jupyter-api-http-error)
+        (apply func url endpoint method data)))
+     (:else
+      (apply func url endpoint method data))))
+  (advice-add
+   #'jupyter-api-http-request
+   :around #'my-jupyter-api-http-request--ignore-login-error-a)
+
+  ;; TODO: these don't seem to get loaded by elpaca - why?
+  (declare-function jupyter-notebook-process "jupyter-server")
+  (declare-function jupyter-launch-notebook "jupyter-server")
+  (declare-function jupyter-server "jupyter-server")
+  
   :bind (:map jupyter-repl-interaction-mode-map
               (("C-c C-e" . jupyter-eval-line-or-region)
                ("C-c C-r" . jupyter-eval-region)
@@ -444,6 +472,8 @@ save the script buffer."
   ;;     (apply orig-fun args)
   ;;     (setq jupyter-repl--script-buffer script-buffer)))
   ;; (advice-add 'jupyter-repl-pop-to-buffer :around #'jupyter-save-source-buffer)
+
+
   
   :hook
   (jupyter-repl-mode . (lambda ()
@@ -459,6 +489,7 @@ save the script buffer."
   (defun rv/julia-repl-send-region (start end)
     (julia-repl--send-string
      (buffer-substring-no-properties start end)))
+  (setq julia-repl-pop-to-buffer t)
   (let ((map code-cells-mode-map))
     (define-key map (kbd "M-p") 'code-cells-backward-cell)
     (define-key map (kbd "M-n") 'code-cells-forward-cell)
@@ -873,7 +904,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package julia-repl
   :config
-  (setq julia-repl-switches "--project=@.") ;; Activate first parent project found
+  (setq julia-repl-switches "--project=@. --threads=20") ;; Activate first parent project found
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
@@ -1022,6 +1053,20 @@ point reaches the beginning or end of the buffer, stop there."
    ;; (tsx-ts-mode . combobulate-mode)
    ))
 
+;; jl combobulate ideas
+;; let/begin blocks as sexps (let_statement, compund_statement)
+;; 
+;; f(
+;;    a,
+;;    b
+;; )
+;; <==>
+;; f(a, b)
+;;
+;; wrap in function def
+;; move literal to variable def <==> inline (even move to gs arg?)
+;; transpose function args
+
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
 ;; https://karthinks.com/software/persistent-prefix-keymaps-in-emacs/
@@ -1084,3 +1129,4 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Combobulate
 (savehist-mode 1)
 (put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
