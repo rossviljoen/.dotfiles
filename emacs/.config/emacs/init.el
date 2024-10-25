@@ -494,16 +494,16 @@ save the script buffer."
     (define-key map (kbd "M-p") 'code-cells-backward-cell)
     (define-key map (kbd "M-n") 'code-cells-forward-cell)
     (define-key map (kbd "C-c C-SPC") 'code-cells-mark-cell)
-    (define-key map (kbd "C-c C-w") (code-cells-command 'kill-region :use-region))
-    (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region))
+    (define-key map (kbd "C-c C-w") (code-cells-command 'kill-region :use-region t))
+    (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region t))
     (define-key map [remap python-shell-send-region]
-                (code-cells-command 'python-shell-send-region :use-region :pulse))
+                (code-cells-command 'python-shell-send-region :use-region t :pulse t))
     (define-key map [remap jupyter-eval-line-or-region]
-                (code-cells-command 'jupyter-eval-region :use-region :pulse))
+                (code-cells-command 'jupyter-eval-region :use-region t :pulse t))
     ;; (define-key map [remap julia-repl-send-region-or-line]
     ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
     (define-key map [remap julia-repl-send-region-or-line]
-                (code-cells-command 'rv/julia-repl-send-region :use-region :pulse))))
+                (code-cells-command 'rv/julia-repl-send-region :use-region t :pulse t))))
 
 
 (use-package epithet
