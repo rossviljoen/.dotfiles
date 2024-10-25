@@ -984,25 +984,26 @@ point reaches the beginning or end of the buffer, stop there."
 ;;;; Misc
 ;;   ====
 
-(use-package bqn-mode
-  :demand t
-  :init
-  (use-package bqn-keymap-mode :ensure nil)
-  (use-package bqn-glyph-mode  :ensure nil)
-  :config
-  (defun run-or-switch-to-bqn ()
-    "Run and switch to inferior BQN process if it does not
- already exist. Otherwise switch to the already existing process
- buffer."
-    (interactive)
-    (pop-to-buffer (bqn-comint-buffer)))
+;; (use-package bqn-mode
+;;   :demand t
+;;   :init
+;;   (use-package bqn-keymap-mode :ensure nil)
+;;   (use-package bqn-glyph-mode  :ensure nil)
+;;   :config
+;;   (defun run-or-switch-to-bqn ()
+;;     "Run and switch to inferior BQN process if it does not
+;;  already exist. Otherwise switch to the already existing process
+;;  buffer."
+;;     (interactive)
+;;     (pop-to-buffer (bqn-comint-buffer)))
 
-  :bind
-  (:map bqn-mode-map
-        ("C-c C-z" . run-or-switch-to-bqn)
-        ("C-c C-c" . bqn-comint-send-buffer)
-        ("C-c C-r" . bqn-comint-send-region)
-        ("C-c C-e" . bqn-comint-send-dwim)))
+;;   :bind
+;;   (:map bqn-mode-map
+;;         ("C-c C-z" . run-or-switch-to-bqn)
+;;         ("C-c C-c" . bqn-comint-send-buffer)
+;;         ("C-c C-r" . bqn-comint-send-region)
+;;         ("C-c C-e" . bqn-comint-send-dwim)))
+
 
 (use-package uiua-ts-mode)
 
@@ -1023,6 +1024,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 (use-package yaml-mode)
+
 
 (use-package csv-mode)
 
@@ -1066,6 +1068,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;; wrap in function def
 ;; move literal to variable def <==> inline (even move to gs arg?)
 ;; transpose function args
+;;
+;; swap args f(a, b) <==> f(b, a)
 
 ;; https://karthinks.com/software/a-consistent-structural-editing-interface/
 ;; https://karthinks.com/software/it-bears-repeating/
