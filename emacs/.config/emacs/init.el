@@ -909,9 +909,6 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
-;; (use-package julia-snail
-  ;; :hook julia-mode)
-
 (use-package eglot-jl
   :ensure
   (:host github :repo "RalphAS/eglot-jl" :branch "ras/languageid")
@@ -934,7 +931,8 @@ point reaches the beginning or end of the buffer, stop there."
               (list (concat "--sysimage=" sysimage-file)))))
   )
 
-;; MAYBE: Julia snail
+;; (use-package julia-snail
+;;   :hook julia-ts-mode)
 
 ;;;; Python
 ;;   ======
