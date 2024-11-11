@@ -275,12 +275,19 @@
 
 (use-package proced
   :ensure nil
+  :custom
+  (proced-auto-update-flag t)
+  (proced-auto-update-interval 1)
+  ;; (proced-goal-attribute nil)
+  (proced-show-remote-processes t)
+  (proced-enable-color-flag t)
+  (proced-format 'custom)
   :config
-  (setq proced-auto-update-flag t)
-  (setq proced-auto-update-interval 3)
-  (setq proced-enable-color-flag t)
-  (setq proced-show-remote-processes t))
-
+  (add-to-list
+   'proced-format-alist
+   '(custom user pid ppid sess tree pcpu pmem rss start time state (args comm)))
+  (add-to-list 'proced-filter-alist
+               '(julia (comm . "^julia"))))
 
 (use-package re-builder
   :ensure nil
@@ -311,7 +318,7 @@
 ;; term-keys, mosh, wezterm
 
 ;; TODO: setup bindings
-(use-package helpful)
+;; (use-package helpful)
 
 
 (use-package ace-window
@@ -389,9 +396,28 @@
   (diff-hl-margin-mode)
   (global-diff-hl-mode))
 
+
 (use-package vterm
   :config
   (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
+
+
+(use-package multi-vterm)
+
+
+(use-package detached
+  :init
+  (detached-init)
+  :bind (;; Replace `async-shell-command' with `detached-shell-command'
+         ([remap async-shell-command] . detached-shell-command)
+         ;; Replace `compile' with `detached-compile'
+         ([remap compile] . detached-compile)
+         ([remap recompile] . detached-compile-recompile)
+         ;; Replace built in completion of sessions with `consult'
+         ([remap detached-open-session] . detached-consult-session))
+  :custom ((detached-show-output-on-attach t)
+           (detached-terminal-data-command system-type)))
+
 
 (use-package persistent-scratch
   :ensure t
@@ -903,6 +929,8 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package julia-ts-mode)
 
 (use-package julia-repl
+  :init
+  (setq julia-repl-pop-to-buffer t)
   :config
   (setq julia-repl-switches "--project=@. --threads=20") ;; Activate first parent project found
   (julia-repl-set-terminal-backend 'vterm)
@@ -910,10 +938,6 @@ point reaches the beginning or end of the buffer, stop there."
   :hook julia-mode)
 
 (use-package eglot-jl
-  :ensure
-  (:host github :repo "RalphAS/eglot-jl" :branch "ras/languageid")
-  ;; N.B. need to downgrade the installed LanguageServer version to 4.4 as 4.5
-  ;; is broken for eglot. Located at eglot-jl-language-server
   :config
   (eglot-jl-init)
   (setq eglot-connect-timeout 3000)
