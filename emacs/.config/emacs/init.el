@@ -276,7 +276,7 @@
 (use-package proced
   :ensure nil
   :custom
-  (proced-auto-update-flag t)
+  (proced-auto-update-flag nil)
   (proced-auto-update-interval 1)
   ;; (proced-goal-attribute nil)
   (proced-show-remote-processes t)
