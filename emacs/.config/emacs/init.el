@@ -299,6 +299,8 @@
   :ensure nil                           ; Use the builtin eglot
   :config
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+  (setq eglot-extend-to-xref t)
+  (setq eglot-stay-out-of '(yasnippet))
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -446,11 +448,6 @@
    #'jupyter-api-http-request
    :around #'my-jupyter-api-http-request--ignore-login-error-a)
 
-  ;; TODO: these don't seem to get loaded by elpaca - why?
-  (declare-function jupyter-notebook-process "jupyter-server")
-  (declare-function jupyter-launch-notebook "jupyter-server")
-  (declare-function jupyter-server "jupyter-server")
-  
   :bind (:map jupyter-repl-interaction-mode-map
               (("C-c C-e" . jupyter-eval-line-or-region)
                ("C-c C-r" . jupyter-eval-region)
@@ -463,33 +460,37 @@
                ;; ("C-c C-z" . jupyter-repl--switch-back)
                ))
   :config
+  ;; TODO: these don't seem to get loaded by elpaca - why?
+  (declare-function jupyter-notebook-process "jupyter-server")
+  (declare-function jupyter-launch-notebook "jupyter-server")
+  (declare-function jupyter-server "jupyter-server")
   (setq org-babel-jupyter-resource-directory (concat user-emacs-directory "jupyter"))
 
   ;; Enable jumping back to the buffer from which jupyter-repl-pop-to-buffer was
   ;; called.
   ;; TODO: get this to work when starting a new REPL as well?
-  (defvar-local jupyter-repl--script-buffer nil)
-  (defun jupyter-repl-pop-to-buffer-with-save ()
-    "Switch to the REPL buffer of the `jupyter-current-client' and
-save the script buffer."
-    (interactive)
-    (if jupyter-current-client
-        (let ((script-buffer (current-buffer)))
-          (jupyter-with-repl-buffer jupyter-current-client
-                                    (setq jupyter-repl--script-buffer script-buffer)
-                                    (goto-char (point-max))
-                                    (pop-to-buffer (current-buffer))))
-      (error "Buffer not associated with a REPL, see `jupyter-repl-associate-buffer'")))
+;;   (defvar-local jupyter-repl--script-buffer nil)
+;;   (defun jupyter-repl-pop-to-buffer-with-save ()
+;;     "Switch to the REPL buffer of the `jupyter-current-client' and
+;; save the script buffer."
+;;     (interactive)
+;;     (if jupyter-current-client
+;;         (let ((script-buffer (current-buffer)))
+;;           (jupyter-with-repl-buffer jupyter-current-client
+;;                                     (setq jupyter-repl--script-buffer script-buffer)
+;;                                     (goto-char (point-max))
+;;                                     (pop-to-buffer (current-buffer))))
+;;       (error "Buffer not associated with a REPL, see `jupyter-repl-associate-buffer'")))
 
-  (defun jupyter-repl--switch-back ()
-    "Switch to the buffer that was active before last call to
-`jupyter-repl-pop-to-buffer-with-save'."
-    (interactive)
-    (when (buffer-live-p jupyter-repl--script-buffer)
-      (switch-to-buffer-other-window jupyter-repl--script-buffer)))
+;;   (defun jupyter-repl--switch-back ()
+;;     "Switch to the buffer that was active before last call to
+;; `jupyter-repl-pop-to-buffer-with-save'."
+;;     (interactive)
+;;     (when (buffer-live-p jupyter-repl--script-buffer)
+;;       (switch-to-buffer-other-window jupyter-repl--script-buffer)))
 
-  (advice-add 'jupyter-repl-pop-to-buffer
-              :override #'jupyter-repl-pop-to-buffer-with-save)
+;;   (advice-add 'jupyter-repl-pop-to-buffer
+;;               :override #'jupyter-repl-pop-to-buffer-with-save)
 
   ;; ;; This doesn't work, idk why
   ;; ;; MAYBE: this is probably a cleaner approach if I can get it to work?
@@ -501,15 +502,16 @@ save the script buffer."
 
 
   
-  :hook
-  (jupyter-repl-mode . (lambda ()
-                         (define-key jupyter-repl-mode-map
-                                     [remap jupyter-repl-pop-to-buffer]
-                                     'jupyter-repl--switch-back))))
+  ;; :hook
+  ;; (jupyter-repl-mode . (lambda ()
+  ;;                        (define-key jupyter-repl-mode-map
+  ;;                                    [remap jupyter-repl-pop-to-buffer]
+  ;;                                    'jupyter-repl--switch-back)))
+  )
 
 
 (use-package code-cells
-  :ensure (:host github :repo "astoff/code-cells.el" :branch "master")
+  ;; :ensure (:host github :repo "astoff/code-cells.el" :branch "master")
   :hook ((julia-mode python-base-mode) . code-cells-mode)
   :config
   (defun rv/julia-repl-send-region (start end)
@@ -524,12 +526,13 @@ save the script buffer."
     (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region t))
     (define-key map [remap python-shell-send-region]
                 (code-cells-command 'python-shell-send-region :use-region t :pulse t))
-    (define-key map [remap jupyter-eval-line-or-region]
-                (code-cells-command 'jupyter-eval-region :use-region t :pulse t))
+    ;; (define-key map [remap jupyter-eval-line-or-region]
+                ;; (code-cells-command 'jupyter-eval-region :use-region t :pulse t))
     ;; (define-key map [remap julia-repl-send-region-or-line]
     ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
     (define-key map [remap julia-repl-send-region-or-line]
-                (code-cells-command 'rv/julia-repl-send-region :use-region t :pulse t))))
+                (code-cells-command 'rv/julia-repl-send-region :use-region t :pulse t)))
+  )
 
 
 (use-package epithet
@@ -932,7 +935,7 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
-  (setq julia-repl-switches "--project=@. --threads=20") ;; Activate first parent project found
+  (setq julia-repl-switches "--project=@. --threads=10") ;; Activate first parent project found
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
