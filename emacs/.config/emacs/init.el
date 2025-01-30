@@ -956,7 +956,10 @@ point reaches the beginning or end of the buffer, stop there."
     (if (file-exists-p sysimage-file)
         (setq eglot-jl-julia-flags
               (list (concat "--sysimage=" sysimage-file)))))
+  ;; TODO: instantiate project before launching server:
+  ;; use (eglot--current-project)
   )
+
 
 ;; (use-package julia-snail
 ;;   :hook julia-ts-mode)
