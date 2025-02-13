@@ -421,6 +421,9 @@
            (detached-terminal-data-command system-type)))
 
 
+(use-package p-search :ensure (:host github :repo "https://github.com/zkry/p-search.git"))
+
+
 (use-package persistent-scratch
   :ensure t
   :commands persistent-scratch-setup-default
@@ -621,7 +624,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; -----------------------------------------------------------------------------
 ;;; Minibuffer Completion
 ;; -----------------------------------------------------------------------------
-
 
 (use-package vertico
   ;; Minimalistic completion UI
