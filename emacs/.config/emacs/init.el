@@ -1154,6 +1154,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; https://github.com/karthink/popper
 
+;; https://wjmn.github.io/posts/j-can-look-like-apl.html
 
 ;; -----------------------------------------------------------------------------
 ;; Final Settings
