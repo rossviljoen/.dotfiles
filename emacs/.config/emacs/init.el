@@ -45,12 +45,12 @@
 ;;; Elpaca package manager
 ;; -----------------------------------------------------------------------------
 
-(defvar elpaca-installer-version 0.7)
+(defvar elpaca-installer-version 0.9)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
+                              :ref nil :depth 1 :inherit ignore
                               :files (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
@@ -62,18 +62,18 @@
     (make-directory repo t)
     (when (< emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
             (progn (message "%s" (buffer-string)) (kill-buffer buffer))
           (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
@@ -366,7 +366,9 @@
 (use-package ef-themes
   :demand t
   :config
-  (load-theme 'ef-autumn t))
+  (load-theme 'ef-day t)
+  (load-theme 'ef-autumn t)
+  )
 
 
 (use-package smooth-scrolling
@@ -436,7 +438,10 @@
   :init
   (setq jupyter-use-zmq nil)
   (setq jupyter-repl-echo-eval-p t)
-  (setq jupyter-executable "/home/rviljoen/.local/bin/jupyter") ;; TODO: fix this
+  ;; (setq jupyter-executable "uv tool run --with dyalog-jupyter-kernel --from jupyter-core jupyter")
+  ;; "uv tool run --with dyalog-jupyter-kernel --from jupyter-core jupyter"
+  ;; (setq jupyter-executable "jupyter")
+  (setq jupyter-executable "/home/ross/script/jupyter.sh")
 
   ;; https://github.com/emacs-jupyter/jupyter/issues/500
   (defun my-jupyter-api-http-request--ignore-login-error-a
@@ -450,6 +455,11 @@
   (advice-add
    #'jupyter-api-http-request
    :around #'my-jupyter-api-http-request--ignore-login-error-a)
+
+  ;; TODO: these don't seem to get loaded by elpaca - why?
+  ;; (declare-function jupyter-notebook-process "jupyter-server")
+  ;; (declare-function jupyter-launch-notebook "jupyter-server")
+  ;; (declare-function jupyter-server "jupyter-server")
 
   :bind (:map jupyter-repl-interaction-mode-map
               (("C-c C-e" . jupyter-eval-line-or-region)
@@ -615,7 +625,19 @@ point reaches the beginning or end of the buffer, stop there."
        :source-dir "src"
        :ext "\\.bqn\\'"))
   (add-to-list 'treesit-auto-recipe-list bqn-tsauto-config)
+  (add-to-list 'treesit-auto-langs 'bqn)
 
+  (setq zig-tsauto-config
+        (make-treesit-auto-recipe
+         :lang 'zig
+         :ts-mode 'zig-ts-mode
+         :remap '(zig-mode)
+         :url "https://github.com/maxxnino/tree-sitter-zig"
+         :source-dir "src"
+         :ext "\\.zig\\'"))
+  (add-to-list 'treesit-auto-recipe-list zig-tsauto-config)
+  (add-to-list 'treesit-auto-langs 'zig)
+  
   (delete 'yaml treesit-auto-langs)
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode 1))
@@ -1010,6 +1032,12 @@ point reaches the beginning or end of the buffer, stop there."
   ;; :config (setq flymake-eslint-prefer-json-diagnostics t)
   ;; :hook (js-base-mode . flymake-eslint-enable))
 
+
+;;;; Zig
+;;   ===
+
+(use-package zig-ts-mode
+  :ensure (:type git :host codeberg :repo "meow_king/zig-ts-mode"))
 
 ;;;; Misc
 ;;   ====
