@@ -166,6 +166,12 @@
         ediff-window-setup-function 'ediff-setup-windows-plain
         custom-file (expand-file-name "custom.el" user-emacs-directory))
 
+  ;; https://github.com/nex3/perspective-el/#some-musings-on-emacs-window-layouts
+  (customize-set-variable 'display-buffer-base-action
+                          '((display-buffer-reuse-window display-buffer-same-window)
+                            (reusable-frames . t)))
+  (customize-set-variable 'even-window-sizes nil)     ; avoid resizing
+
   :bind
   ("M-SPC" . cycle-spacing)
 
