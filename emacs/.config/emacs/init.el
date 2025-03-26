@@ -401,6 +401,10 @@
   :bind ("C-x g" . magit-status))
 
 
+(use-package difftastic
+  :config (difftastic-bindings-mode))
+
+
 (use-package diff-hl
   :config
   (diff-hl-margin-mode)
@@ -409,6 +413,7 @@
 
 (use-package vterm
   :config
+  (setq vterm-max-scrollback 100000)
   (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
 
 
@@ -1189,6 +1194,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;; https://github.com/karthink/popper
 
 ;; https://wjmn.github.io/posts/j-can-look-like-apl.html
+
+;; https://github.com/garlic0x1/.emacs
 
 ;; -----------------------------------------------------------------------------
 ;; Final Settings
