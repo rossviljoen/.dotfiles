@@ -1169,6 +1169,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; TODO
 ;; -----------------------------------------------------------------------------
 
+;; https://github.com/armindarvish/consult-gh
 
 ;; dragstuff
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)
