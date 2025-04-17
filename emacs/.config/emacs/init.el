@@ -6,6 +6,7 @@
 
 ;; A quick guide to use-package:
 ;; (use-package foo
+;;   :ensure (:host github :repo "https://github.com/bar/foo.git")  ; elpaca specific
 ;;   :bind (("M-s O" . foo-do-something)   ; Bind globally
 ;;
 ;;          ; Bind in mode map (can be another package's mode)
@@ -294,6 +295,7 @@
   (add-to-list 'proced-filter-alist
                '(julia (comm . "^julia"))))
 
+
 (use-package re-builder
   :ensure nil
   :config
@@ -302,6 +304,7 @@
 
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
+  :bind ("C-c e" . eglot)
   :config
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (setq eglot-extend-to-xref t)
@@ -653,6 +656,13 @@ point reaches the beginning or end of the buffer, stop there."
   (global-treesit-auto-mode 1))
 
 
+(use-package gptel
+  :config
+  (setq
+   gptel-model 'claude-3-7-sonnet-20250219
+   gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
+
+
 ;; -----------------------------------------------------------------------------
 ;;; Minibuffer Completion
 ;; -----------------------------------------------------------------------------
@@ -857,6 +867,45 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package consult-todo
   ;; Search TODOs detected by 'hl-todo' with consult
   :bind ("M-s t" . consult-todo))
+
+
+(use-package consult-gh
+  :ensure (:host github :repo "armindarvish/consult-gh" :branch "main")
+  :after consult
+  :custom
+  (consult-gh-default-clone-directory "~/code")
+  (consult-gh-show-preview t)
+  (consult-gh-preview-key "C-o")
+  (consult-gh-repo-action #'consult-gh--repo-browse-files-action)
+  (consult-gh-issue-action #'consult-gh--issue-view-action)
+  (consult-gh-pr-action #'consult-gh--pr-view-action)
+  (consult-gh-code-action #'consult-gh--code-view-action)
+  (consult-gh-file-action #'consult-gh--files-view-action)
+  (consult-gh-notifications-action #'consult-gh--notifications-action)
+  (consult-gh-dashboard-action #'consult-gh--dashboard-action)
+  (consult-gh-large-file-warning-threshold 2500000)
+  (consult-gh-prioritize-local-folder 'suggest)
+  :config
+  ;; Remember visited orgs and repos across sessions
+  (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
+  (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
+  ;; Enable default keybindings (e.g. for commenting on issues, prs, ...)
+  (consult-gh-enable-default-keybindings)
+  (require 'consult-gh-transient))
+
+
+(use-package consult-gh-embark
+  :ensure (:host github :repo "armindarvish/consult-gh" :branch "main")
+  :after consult-gh
+  :config
+  (consult-gh-embark-mode +1))
+
+
+;; (use-package consult-gh-forge
+;;   :ensure (:host github :repo "armindarvish/consult-gh" :branch "main")
+;;   :after consult-gh
+;;   :config
+;;   (consult-gh-forge-mode +1))
 
 
 (use-package embark
@@ -1164,12 +1213,9 @@ point reaches the beginning or end of the buffer, stop there."
                 ("https://hbfs.wordpress.com/feed/" comp-sci)))
   (setq elfeed-db-directory (expand-file-name "elfeed/" user-emacs-directory)))
 
-
 ;; -----------------------------------------------------------------------------
 ;;; TODO
 ;; -----------------------------------------------------------------------------
-
-;; https://github.com/armindarvish/consult-gh
 
 ;; dragstuff
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)
@@ -1206,3 +1252,5 @@ point reaches the beginning or end of the buffer, stop there."
 (savehist-mode 1)
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
+
+(load "~/.dotfiles/emacs/.config/emacs/gt.el")
