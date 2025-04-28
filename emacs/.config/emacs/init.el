@@ -366,10 +366,12 @@
   :config
   (pinentry-start))
 
+
 ;; (use-package solarized-theme
 ;;   :demand t
 ;;   :config
 ;;   (load-theme 'solarized-light t))
+
 
 (use-package ef-themes
   :demand t
@@ -1198,7 +1200,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;; -----------------------------------------------------------------------------
 ;;; Messaging
 ;; -----------------------------------------------------------------------------
-
 
 (use-package elfeed
   ;; RSS feed reader
