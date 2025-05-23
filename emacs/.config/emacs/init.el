@@ -1020,7 +1020,7 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
-  (setq julia-repl-switches "--project=@. --threads=10") ;; Activate first parent project found
+  (setq julia-repl-switches "+1.11 --project --threads=10")
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
@@ -1251,7 +1251,9 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Saves minibuffer history, has to be loaded after some packages like
 ;; Combobulate
 (savehist-mode 1)
-(put 'downcase-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
 
 (load "~/.dotfiles/emacs/.config/emacs/gt.el")
+
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
