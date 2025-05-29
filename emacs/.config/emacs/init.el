@@ -45,7 +45,9 @@
 ;; -----------------------------------------------------------------------------
 ;;; Elpaca package manager
 ;; -----------------------------------------------------------------------------
-(defvar elpaca-installer-version 0.10)
+
+;; BEGIN INSTALLER -------------------------------------------------------------
+(defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -80,9 +82,10 @@
   (unless (require 'elpaca-autoloads nil t)
     (require 'elpaca)
     (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
+;; END INSTALLER ---------------------------------------------------------------
 
 (elpaca elpaca-use-package
         ;; Enable Elpaca support for use-package's :ensure keyword.
@@ -665,6 +668,9 @@ point reaches the beginning or end of the buffer, stop there."
    gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
+(use-package pr-review)
+
+
 ;; -----------------------------------------------------------------------------
 ;;; Minibuffer Completion
 ;; -----------------------------------------------------------------------------
@@ -1020,7 +1026,7 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
-  (setq julia-repl-switches "+1.11 --project --threads=10")
+  (setq julia-repl-switches "--project --threads=10")
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
