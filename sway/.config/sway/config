@@ -16,7 +16,6 @@ set $left h
 set $down j
 set $up k
 set $right l
-# Your preferred terminal emulator
 set $term foot
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
@@ -24,11 +23,13 @@ set $term foot
 # set $menu dmenu_path | dmenu | xargs swaymsg exec --
 # set $menu bemenu-run | xargs swaymsg exec --
 set $menu fuzzel
+set $editor ${EDITOR:-emacs}
+set $browser firefox
 
 ### Output configuration
 #
-# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg $XDG_CONFIG_HOME/sway/backgrounds/de-chirico-christ-and-the-storm.jpg fill
+# output * bg $XDG_CONFIG_HOME/sway/backgrounds/de-chirico-christ-and-the-storm.jpg fill
+output * bg '#2d2d2d' solid
 #
 # Example configuration:
 #
@@ -72,10 +73,10 @@ exec gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
 #       middle_emulation enabled
 #   }
 #
-
 input type:keyboard {
-      xkb_layout "gb"
-      xkb_options caps:ctrl_modifier,shift:both_capslock
+    xkb_layout "gb,apl"
+    xkb_variant ",dyalog"
+    xkb_options "caps:ctrl_modifier,shift:both_capslock,grp:switch" # right alt for APL
 }
 
 input type:touchpad {
@@ -292,6 +293,7 @@ bar {
 
 include /etc/sway/config.d/*
 
+include ~/.config/sway/config.d/config-$(hostname)
 
 ## Setup inital applications
 workspace $ws3
@@ -301,4 +303,4 @@ workspace $ws2
 exec term
 
 workspace $ws1 
-exec emacs
+exec editor
