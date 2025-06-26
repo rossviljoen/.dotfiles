@@ -8,7 +8,7 @@ export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 export XDG_STATE_HOME=$HOME/.local/state
-export DEV=$HOME/dev
+export CODE=$HOME/code
 
 
 # Use XDG directories for various programs
@@ -34,9 +34,9 @@ export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
 
 # Other non-XDG home dirs
-export JULIA_DEPOT_PATH=$DEV/julia-depot
-export JULIAUP_DEPOT_PATH=$DEV/julia-depot
-export GOPATH=$DEV/go
+# export JULIA_DEPOT_PATH=$DEV/julia-depot
+# export JULIAUP_DEPOT_PATH=$DEV/julia-depot
+# export GOPATH=$DEV/go
 
 
 # Try to get LightDM to use XDG directories (doesn't seem to work)
@@ -58,7 +58,7 @@ export PATH=$DENO_INSTALL_ROOT/bin:$PATH
 
 
 # Various hacks etc.
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
 export MAKEFLAGS="-j$(expr $(nproc) - 2)"
 
 export JULIA_PKG_USE_CLI_GIT=true

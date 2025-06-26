@@ -1259,7 +1259,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Combobulate
 (savehist-mode 1)
 
-(load "~/.dotfiles/emacs/.config/emacs/gt.el")
+; (load "~/.dotfiles/emacs/.config/emacs/gt.el")
 
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
