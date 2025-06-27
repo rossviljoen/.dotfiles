@@ -16,6 +16,7 @@ export HISTFILE=$XDG_DATA_HOME/bash/history
 export HISTSIZE=-1
 export HISTFILESIZE=-1
 
+export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
 export SSB_HOME=$XDG_DATA_HOME/zoom
 export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
@@ -35,7 +36,7 @@ export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
 # Other non-XDG home dirs
 # export JULIA_DEPOT_PATH=$DEV/julia-depot
-# export JULIAUP_DEPOT_PATH=$DEV/julia-depot
+export JULIAUP_DEPOT_PATH=$HOME/.juliaup
 # export GOPATH=$DEV/go
 
 
@@ -55,7 +56,7 @@ export PATH=$HOME/.local/bin:$PATH
 export PATH=$RYE_HOME/shims:$PATH
 export PATH=$CARGO_HOME/bin:$PATH
 export PATH=$DENO_INSTALL_ROOT/bin:$PATH
-
+export PATH=$JULIAUP_DEPOT_PATH/bin:$PATH
 
 # Various hacks etc.
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
@@ -69,10 +70,25 @@ export JULIA_PKG_USE_CLI_GIT=true
 # export LD_PRELOAD=/usr/lib64/libstdc++.so.6
 
 
-GUIX_PROFILE="$HOME/.guix-profile"
-. "$GUIX_PROFILE/etc/profile"
-export GUIX_LOCPATH=$GUIX_PROFILE/lib/locale
+# GUIX_PROFILE="$HOME/.guix-profile"
+# . "$GUIX_PROFILE/etc/profile"
+# export GUIX_LOCPATH=$GUIX_PROFILE/lib/locale
 
-GUIX_PROFILE="$HOME/.config/guix/current"
-. "$GUIX_PROFILE/etc/profile"
+# GUIX_PROFILE="$HOME/.config/guix/current"
+# . "$GUIX_PROFILE/etc/profile"
 
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+case ":$PATH:" in
+    *:/home/rviljoen/.juliaup/bin:*)
+        ;;
+
+    *)
+        
+        ;;
+esac
+
+# <<< juliaup initialize <<<
