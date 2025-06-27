@@ -222,20 +222,47 @@
   :config
   (setq tramp-auto-save-directory
         (expand-file-name "var/tramp/" user-emacs-directory))
-  (setq tramp-chunksize 2000)
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   ;; (add-to-list 'tramp-connection-properties
-               ;; (list nil "direct-async-process" t))
+  ;;              (list nil "direct-async-process" t))
   (setq tramp-ssh-controlmaster-options nil)
-        ;; (concat
-        ;;  "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
-        ;;  "-o ControlMaster=auto -o ControlPersist=60m"))
+  ;; (concat
+  ;;  "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
+  ;;  "-o ControlMaster=auto -o ControlPersist=60m"))
   (connection-local-set-profile-variables
    'remote-bash
    '((shell-file-name . "/bin/bash")
      (shell-command-switch . "-c")
      (shell-interactive-switch . "-i")
-     (shell-login-switch . "-l"))))
+     (shell-login-switch . "-l")))
+
+  ;; improving performance
+  ;; https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
+  (setq tramp-chunksize 2000)
+  (setq tramp-verbose 1)
+  (setq tramp-copy-size-limit (* 1024 1024)) ;; 1MB
+  (setq tramp-verbose 2)
+  (setq vc-handled-backends '(Git)
+        remote-file-name-inhibit-locks t
+        tramp-use-scp-direct-remote-copying t
+        remote-file-name-inhibit-auto-save-visited t)
+  (setq tramp-default-method (cond
+                              ((executable-find "rsync") "rsync")
+                              (t "scp")))
+
+  (connection-local-set-profile-variables
+   'remote-direct-async-process
+   '((tramp-direct-async-process . t)))
+
+  (connection-local-set-profiles
+   '(:application tramp :protocol "scp")
+   'remote-direct-async-process)
+
+  (connection-local-set-profiles
+   '(:application tramp :protocol "ssh")
+   'remote-direct-async-process)
+
+  (setq magit-tramp-pipe-stty-settings 'pty))
 
 
 (use-package ibuffer
