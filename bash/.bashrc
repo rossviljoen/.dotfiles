@@ -40,4 +40,4 @@ if [ -n "$GUIX_ENVIRONMENT" ]; then
     fi
 fi
 
-[ -x "$(command -v keychain)" ] && eval $(keychain --eval --quiet id_rsa id_github)
+[ -x "$(command -v keychain)" ] && eval $(keychain --eval --quiet --systemd id_rsa id_github)
