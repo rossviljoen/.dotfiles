@@ -1,6 +1,0 @@
-[user]
-	name = Ross Viljoen
-	email = ross+git@viljoen.co.uk
-	signingkey = F34D4DA2E5399DAC
-[commit]
-	gpgsign = true
