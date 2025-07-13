@@ -1,5 +1,6 @@
 #!/bin/sh
 export EDITOR="emacs"
+export SUDO_EDITOR="emacs"
 export VISUAL="emacs"
 export BROWSER="firefox"
 

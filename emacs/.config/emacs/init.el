@@ -34,12 +34,6 @@
 
 (setq garbage-collection-messages t)
 (setq gc-cons-threshold (* 100 1024 1024))
-;; NOTE: this seems to fire GC excessively when using TRAMP
-;; Run GC whenever Emacs loses focus
-;; https://news.ycombinator.com/item?id=39191012
-;; (add-function :after
-;;               after-focus-change-function
-;;               (lambda () (unless (frame-focus-state) (garbage-collect))))
 
 
 ;; -----------------------------------------------------------------------------
@@ -223,8 +217,6 @@
   (setq tramp-auto-save-directory
         (expand-file-name "var/tramp/" user-emacs-directory))
   ;; (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
-  ;; (add-to-list 'tramp-connection-properties
-  ;;              (list nil "direct-async-process" t))
   (setq tramp-ssh-controlmaster-options nil)
   ;; (concat
   ;;  "-o ControlPath=/tmp/ssh-ControlPath-%%r@%%h:%%p "
@@ -582,15 +574,13 @@
     (define-key map (kbd "C-c C-SPC") 'code-cells-mark-cell)
     (define-key map (kbd "C-c C-w") (code-cells-command 'kill-region :use-region t))
     (define-key map (kbd "C-c M-w") (code-cells-command 'kill-ring-save :use-region t))
+
     (define-key map [remap python-shell-send-region]
                 (code-cells-command 'python-shell-send-region :use-region t :pulse t))
-    ;; (define-key map [remap jupyter-eval-line-or-region]
-                ;; (code-cells-command 'jupyter-eval-region :use-region t :pulse t))
-    ;; (define-key map [remap julia-repl-send-region-or-line]
-    ;; (code-cells-command 'julia-repl-send-region-or-line :use-region :pulse))
     (define-key map [remap julia-repl-send-region-or-line]
-                (code-cells-command 'rv/julia-repl-send-region :use-region t :pulse t)))
-  )
+                (code-cells-command 'rv/julia-repl-send-region :use-region t :pulse t))
+    (define-key map [remap julia-snail-send-top-level-form]
+                (code-cells-command 'julia-snail-send-code-cell :use-region t :pulse t))))
 
 
 (use-package epithet
@@ -1047,8 +1037,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package julia-mode)
 
-;; https://github.com/JuliaEditorSupport/julia-ts-mode/issues/21#issuecomment-2126885445
-(use-package julia-ts-mode)
+(use-package julia-ts-mode
+  :ensure
+  (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
 
 (use-package julia-repl
   :init

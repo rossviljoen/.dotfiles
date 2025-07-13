@@ -9,7 +9,14 @@
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
 PS1='[\u@\h \W]\$ '
+
+open() {
+  xdg-open "$@" >/dev/null 2>&1
+}
 
 vterm_printf() {
     if [ -n "$TMUX" ]; then
