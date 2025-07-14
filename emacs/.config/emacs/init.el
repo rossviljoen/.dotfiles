@@ -328,9 +328,17 @@
   :ensure nil                           ; Use the builtin eglot
   :bind ("C-c e" . eglot)
   :config
-  (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-  (setq eglot-extend-to-xref t)
+  (setq eglot-ignored-server-capabilities '(:inlayHintProvider :completionProvider/snippetSupport))
   (setq eglot-stay-out-of '(yasnippet))
+  (setq eglot-extend-to-xref t)
+  (let ((jetls (file-name-concat (getenv "CODE") "JETLS")))
+    (add-to-list 'eglot-server-programs
+                 `(((julia-mode :language-id "julia")
+                    (julia-ts-mode :language-id "julia"))
+                   "julia"
+                   "--startup-file=no"
+                   ,(concat "--project=" jetls)
+                   ,(file-name-concat jetls "runserver.jl"))))
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -1050,25 +1058,25 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
 
-(use-package eglot-jl
-  :config
-  (eglot-jl-init)
-  (setq eglot-connect-timeout 3000)
-  ;; TODO: better automation for this? upstream it?
-  ;; NOTE: To create the sysimage
-  ;; (setq eglot-jl-julia-flags
-  ;;       (list (concat "--trace-compile="
-  ;;                     (expand-file-name "precompile.jl" eglot-jl-language-server-project))))
-  ;; Then, in `eglot-jl-language-server-project', run
-  ;; julia --project -e 'using PackageCompiler; create_sysimage(["LanguageServer", "SymbolServer"]; sysimage_path="eglot-jl-sysimage.so", precompile_statements_file="precompile.jl")'
-  (let ((sysimage-file
-         (expand-file-name "eglot-jl-sysimage.so" eglot-jl-language-server-project)))
-    (if (file-exists-p sysimage-file)
-        (setq eglot-jl-julia-flags
-              (list (concat "--sysimage=" sysimage-file)))))
-  ;; TODO: instantiate project before launching server:
-  ;; use (eglot--current-project)
-  )
+;; (use-package eglot-jl
+;;   :config
+;;   (eglot-jl-init)
+;;   (setq eglot-connect-timeout 3000)
+;;   ;; TODO: better automation for this? upstream it?
+;;   ;; NOTE: To create the sysimage
+;;   ;; (setq eglot-jl-julia-flags
+;;   ;;       (list (concat "--trace-compile="
+;;   ;;                     (expand-file-name "precompile.jl" eglot-jl-language-server-project))))
+;;   ;; Then, in `eglot-jl-language-server-project', run
+;;   ;; julia --project -e 'using PackageCompiler; create_sysimage(["LanguageServer", "SymbolServer"]; sysimage_path="eglot-jl-sysimage.so", precompile_statements_file="precompile.jl")'
+;;   (let ((sysimage-file
+;;          (expand-file-name "eglot-jl-sysimage.so" eglot-jl-language-server-project)))
+;;     (if (file-exists-p sysimage-file)
+;;         (setq eglot-jl-julia-flags
+;;               (list (concat "--sysimage=" sysimage-file)))))
+;;   ;; TODO: instantiate project before launching server:
+;;   ;; use (eglot--current-project)
+;;   )
 
 
 ;; (use-package julia-snail
