@@ -48,3 +48,5 @@ if [ -n "$GUIX_ENVIRONMENT" ]; then
 fi
 
 [ -x "$(command -v keychain)" ] && eval $(keychain --eval --quiet --systemd id_rsa id_github)
+
+[ -f /usr/share/nvm/init-nvm.sh ] && . /usr/share/nvm/init-nvm.sh
