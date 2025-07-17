@@ -1053,7 +1053,7 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
-  (setq julia-repl-switches "--project --threads=10")
+  (setq julia-repl-switches "--project --threads=10,1")
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
