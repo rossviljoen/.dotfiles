@@ -694,6 +694,10 @@ point reaches the beginning or end of the buffer, stop there."
    gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
+(use-package gptel-emacs-tools
+  :ensure (:host github :repo "jwiegley/gptel-emacs-tools"))
+
+
 (use-package pr-review)
 
 
