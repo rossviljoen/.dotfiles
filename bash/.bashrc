@@ -38,6 +38,8 @@ PS1=$PS1'\[$(vterm_prompt_end)\]'
 
 [ -x "$(command -v direnv)" ] && eval "$(direnv hook bash)"
 
+[ -x "$(command -v fzf)" ] && eval "$(fzf --bash)"
+
 export GPG_TTY=$(tty)  # apparently needed for pinentry?
 
 # Automatically added by the Guix install script.
