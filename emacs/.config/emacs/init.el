@@ -144,6 +144,8 @@
   (add-hook 'message-mode-hook #'word-wrap-mode)
   (add-hook 'text-mode-hook #'visual-line-mode)
 
+  (setq truncate-lines t)
+
   ;; https://www.emacswiki.org/emacs/SavePlace
   (save-place-mode 1)
 
@@ -337,6 +339,7 @@
                     (julia-ts-mode :language-id "julia"))
                    "julia"
                    "--startup-file=no"
+                   "--history-file=no"
                    ,(concat "--project=" jetls)
                    ,(file-name-concat jetls "runserver.jl"))))
   ;; :hook
