@@ -64,6 +64,7 @@ export PATH=$JULIAUP_DEPOT_PATH/bin:$PATH
 export MAKEFLAGS="-j$(expr $(nproc) - 2)"
 
 export JULIA_PKG_USE_CLI_GIT=true
+export JULIA_PKG_DEVDIR=$CODE
 
 # This is needed to use Jax from Julia through PythonCall
 # see: https://github.com/JuliaPy/PyCall.jl/issues/722
