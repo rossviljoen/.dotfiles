@@ -1057,11 +1057,24 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure
   (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
 
+(defvar-local julia-repl-version "")
+(defvar-local julia-repl-num-threads "16,1")
+
 (use-package julia-repl
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
-  (setq julia-repl-switches "--project --threads=10,1")
+  ;; Function to dynamically set switches based on buffer-local variable
+  (defun julia-repl-set-switches ()
+    "Set julia-repl-switches using buffer-local thread count."
+    (setq julia-repl-switches
+          (format "%s --project --threads=%s" julia-repl-version julia-repl-num-threads)))
+
+  ;; Set initial switches
+  (julia-repl-set-switches)
+
+  (advice-add 'julia-repl :before #'julia-repl-set-switches)
+
   (julia-repl-set-terminal-backend 'vterm)
   :bind (:map julia-repl-mode-map ("C-c C-e" . nil))
   :hook julia-mode)
