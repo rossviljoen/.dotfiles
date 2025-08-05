@@ -914,7 +914,7 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure (:host github :repo "armindarvish/consult-gh" :branch "main")
   :after consult
   :custom
-  (consult-gh-default-clone-directory "~/code")
+  (consult-gh-default-clone-directory (getenv "CODE"))
   (consult-gh-show-preview t)
   (consult-gh-preview-key "C-o")
   (consult-gh-repo-action #'consult-gh--repo-browse-files-action)
@@ -926,6 +926,7 @@ point reaches the beginning or end of the buffer, stop there."
   (consult-gh-dashboard-action #'consult-gh--dashboard-action)
   (consult-gh-large-file-warning-threshold 2500000)
   (consult-gh-prioritize-local-folder 'suggest)
+  (consult-gh-workflow-maxnum 60)
   :config
   ;; Remember visited orgs and repos across sessions
   (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
