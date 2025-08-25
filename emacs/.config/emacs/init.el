@@ -171,6 +171,8 @@
                             (reusable-frames . t)))
   (customize-set-variable 'even-window-sizes nil)     ; avoid resizing
 
+  (setq project-vc-extra-root-markers '("Project.toml"))
+
   :bind
   ("M-SPC" . cycle-spacing)
 
@@ -601,8 +603,12 @@
   
   ;; Always auto-rename a few modes
   :hook
-  ((Info-selection eww-after-render help-mode occur-mode shell-mode)
-   . epithet-rename-buffer)
+  ((Info-selection
+    eww-after-render
+    ;; help-mode ;; TODO: this breaks describe-mode
+    occur-mode
+    shell-mode
+    ) . epithet-rename-buffer)
   ((compilation-start compilation-finish)
    . epithet-rename-buffer-ignoring-arguments))
 
@@ -927,6 +933,7 @@ point reaches the beginning or end of the buffer, stop there."
   (consult-gh-large-file-warning-threshold 2500000)
   (consult-gh-prioritize-local-folder 'suggest)
   (consult-gh-workflow-maxnum 60)
+  (consult-gh-with-pr-review-mode +1)
   :config
   ;; Remember visited orgs and repos across sessions
   (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
@@ -1057,18 +1064,22 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure
   (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
 
-(defvar-local julia-repl-version "")
 (defvar-local julia-repl-num-threads "16,1")
 
 (use-package julia-repl
   :init
   (setq julia-repl-pop-to-buffer t)
   :config
+  (setq julia-repl-executable-records
+        '((default "julia")
+          (1-11 "julia +1.11")
+          (1-12 "julia +1.12"))) ; compiled from the repository
+
   ;; Function to dynamically set switches based on buffer-local variable
   (defun julia-repl-set-switches ()
     "Set julia-repl-switches using buffer-local thread count."
     (setq julia-repl-switches
-          (format "%s --project --threads=%s" julia-repl-version julia-repl-num-threads)))
+          (format "--project --threads=%s" julia-repl-num-threads)))
 
   ;; Set initial switches
   (julia-repl-set-switches)
@@ -1297,6 +1308,20 @@ point reaches the beginning or end of the buffer, stop there."
 ;; https://wjmn.github.io/posts/j-can-look-like-apl.html
 
 ;; https://github.com/garlic0x1/.emacs
+
+;; https://mocompute.codeberg.page/item/2024/2024-09-03-emacs-project-vterm.html
+
+;; AI agents:
+;; - https://github.com/steveyegge/efrit
+;; - https://github.com/yuya373/claude-code-emacs
+;; - https://news.ycombinator.com/item?id=44811567
+;; - https://github.com/editor-code-assistant/eca
+;; - https://her.esy.fun/posts/0029-ai-assistants-in-doom-emacs-31-on-macos-with-clojure-mcp-server/index.html
+;; - https://ampcode.com/how-to-build-an-agent
+
+
+;; Ideally:
+;; - Emacs + Julia MCPs (look at clojure-mcp for inspiration)
 
 ;; -----------------------------------------------------------------------------
 ;; Final Settings
