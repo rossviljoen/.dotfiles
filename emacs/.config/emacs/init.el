@@ -137,6 +137,9 @@
   (scroll-bar-mode -1)
   (horizontal-scroll-bar-mode -1)
 
+  (setq scroll-conservatively 4)
+  (setq scroll-margin 4)
+
   ;; Fill column settings
   (setq-default fill-column 80)
   (global-display-fill-column-indicator-mode)
@@ -340,6 +343,7 @@
                  `(((julia-mode :language-id "julia")
                     (julia-ts-mode :language-id "julia"))
                    "julia"
+                   "+1.12"
                    "--startup-file=no"
                    "--history-file=no"
                    ,(concat "--project=" jetls)
@@ -414,12 +418,6 @@
   (load-theme 'ef-day t)
   (load-theme 'ef-autumn t)
   )
-
-
-(use-package smooth-scrolling
-  :demand t
-  :config
-  (smooth-scrolling-mode 1))
 
 
 (use-package sudo-edit)
@@ -885,6 +883,10 @@ point reaches the beginning or end of the buffer, stop there."
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
+  (consult-customize
+   consult-line
+   :add-history (seq-some #'thing-at-point '(region symbol)))
+
   ;; (add-to-list 'consult-buffer-sources persp-consult-source)  ; uncomment if using perspective.el
 
   ;; Optionally configure the narrowing key.
@@ -933,7 +935,7 @@ point reaches the beginning or end of the buffer, stop there."
   (consult-gh-large-file-warning-threshold 2500000)
   (consult-gh-prioritize-local-folder 'suggest)
   (consult-gh-workflow-maxnum 60)
-  (consult-gh-with-pr-review-mode +1)
+  
   :config
   ;; Remember visited orgs and repos across sessions
   (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
@@ -948,6 +950,14 @@ point reaches the beginning or end of the buffer, stop there."
   :after consult-gh
   :config
   (consult-gh-embark-mode +1))
+
+
+(use-package consult-gh-with-pr-review
+  :ensure (:host github :repo "armindarvish/consult-gh" :branch "main")
+  :after consult-gh
+  :config
+  (setq ghub-default-host "api.github.com") ; TODO: I think this got removed from ghub??
+  (consult-gh-with-pr-review-mode +1))
 
 
 ;; (use-package consult-gh-forge
@@ -1313,6 +1323,7 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; AI agents:
 ;; - https://github.com/steveyegge/efrit
+;; - https://github.com/manzaltu/claude-code-ide.el
 ;; - https://github.com/yuya373/claude-code-emacs
 ;; - https://news.ycombinator.com/item?id=44811567
 ;; - https://github.com/editor-code-assistant/eca
