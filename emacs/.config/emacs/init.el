@@ -176,6 +176,11 @@
 
   (setq project-vc-extra-root-markers '("Project.toml"))
 
+  (unless (display-graphic-p)
+    ; https://www.gnu.org/software/emacs/manual/html_node/efaq/Backspace-invokes-help.html
+    (keyboard-translate ?\C-h ?\C-?)
+    (xterm-mouse-mode t))
+
   :bind
   ("M-SPC" . cycle-spacing)
 
@@ -344,6 +349,7 @@
                     (julia-ts-mode :language-id "julia"))
                    "julia"
                    "+1.12"
+                   "--threads=auto"
                    "--startup-file=no"
                    "--history-file=no"
                    ,(concat "--project=" jetls)
@@ -364,7 +370,12 @@
 ;; -----------------------------------------------------------------------------
 
 ;; TODO: terminal emacs setup
-;; term-keys, mosh, wezterm
+;; mosh, wezterm
+(use-package term-keys
+  :ensure (:host github :repo "https://github.com/CyberShadow/term-keys.git")
+  :config
+  (unless (display-graphic-p)
+      (term-keys-mode t)))
 
 ;; TODO: setup bindings
 ;; (use-package helpful)
@@ -415,9 +426,9 @@
 (use-package ef-themes
   :demand t
   :config
-  (load-theme 'ef-day t)
-  (load-theme 'ef-autumn t)
-  )
+  (if (display-graphic-p)
+      (load-theme 'ef-autumn t)
+    (load-theme 'ef-day t)))
 
 
 (use-package sudo-edit)

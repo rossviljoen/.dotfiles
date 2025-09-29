@@ -36,7 +36,7 @@ export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
 
 # Other non-XDG home dirs
-# export JULIA_DEPOT_PATH=$DEV/julia-depot
+export JULIA_DEPOT_PATH=$HOME/.julia
 export JULIAUP_DEPOT_PATH=$HOME/.juliaup
 # export GOPATH=$DEV/go
 
@@ -58,6 +58,7 @@ export PATH=$RYE_HOME/shims:$PATH
 export PATH=$CARGO_HOME/bin:$PATH
 export PATH=$DENO_INSTALL_ROOT/bin:$PATH
 export PATH=$JULIAUP_DEPOT_PATH/bin:$PATH
+export PATH=$JULIA_DEPOT_PATH/bin:$PATH # For Pkg apps
 
 # Various hacks etc.
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
