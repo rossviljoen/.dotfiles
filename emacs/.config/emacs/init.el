@@ -1081,9 +1081,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package julia-mode)
 
-(use-package julia-ts-mode
-  :ensure
-  (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
+;; (use-package julia-ts-mode
+;;   :ensure
+;;   (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
 
 (defvar-local julia-repl-num-threads "16,1")
 
