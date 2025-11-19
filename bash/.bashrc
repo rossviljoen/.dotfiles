@@ -12,6 +12,7 @@ alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+alias gemini='nvm exec --lts gemini'
 PS1='[\u@\h \W]\$ '
 
 open() {
@@ -52,3 +53,4 @@ fi
 [ -x "$(command -v keychain)" ] && eval $(keychain --eval --quiet --systemd id_rsa id_github)
 
 [ -f /usr/share/nvm/init-nvm.sh ] && . /usr/share/nvm/init-nvm.sh
+export JAVA_HOME=/usr

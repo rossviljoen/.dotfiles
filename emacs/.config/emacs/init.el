@@ -336,6 +336,9 @@
   (setq reb-re-syntax 'string))
 
 
+(use-package track-changes)             ; Bulitin, but newer version needed explicity for copilot
+
+
 (use-package eglot
   :ensure nil                           ; Use the builtin eglot
   :bind ("C-c e" . eglot)
@@ -353,7 +356,10 @@
                    "--startup-file=no"
                    "--history-file=no"
                    ,(concat "--project=" jetls)
-                   ,(file-name-concat jetls "runserver.jl"))))
+                   ,(file-name-concat jetls "runserver.jl")
+                   "--socket"
+                   :autoport
+                   )))
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -716,8 +722,30 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure (:host github :repo "jwiegley/gptel-emacs-tools"))
 
 
-(use-package pr-review)
+(use-package copilot
+  :ensure (:host github :repo "copilot-emacs/copilot.el")
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map ("<tab>" . copilot-accept-completion))
+  :config
+  ;; (setq copilot-log-max 1000)
+  ;; (setq copilot-server-args '("--stdio" "--debug"))
+  ;; HACK HACK HACK
+  (defun copilot--command ()
+  "Return the command-line to start copilot server with nvm LTS node."
+  (let ((node-path (string-trim (shell-command-to-string "bash -c 'source ~/.config/nvm/nvm.sh && nvm which 24.11.1'"))))
+    (append
+     (list node-path (copilot-server-executable))
+     copilot-server-args)))
+  ;; HACK HACK HACK
+  ;; (defun copilot--command ()
+    ;; "Return the command-line to start copilot server with nvm LTS."
+    ;; (append
+     ;; (list "nvm" "exec" "lts" (copilot-server-executable))
+  ;; copilot-server-args))
+  )
 
+
+(use-package pr-review)
 
 ;; -----------------------------------------------------------------------------
 ;;; Minibuffer Completion
