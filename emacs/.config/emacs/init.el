@@ -348,18 +348,13 @@
   (setq eglot-extend-to-xref t)
   (let ((jetls (file-name-concat (getenv "CODE") "JETLS")))
     (add-to-list 'eglot-server-programs
-                 `(((julia-mode :language-id "julia")
-                    (julia-ts-mode :language-id "julia"))
-                   "julia"
-                   "+1.12"
-                   "--threads=auto"
-                   "--startup-file=no"
-                   "--history-file=no"
-                   ,(concat "--project=" jetls)
-                   ,(file-name-concat jetls "runserver.jl")
-                   "--socket"
-                   :autoport
-                   )))
+              '(((julia-mode :language-id "julia")
+                (julia-ts-mode :language-id "julia"))
+                "jetls"
+                "--threads=auto"
+                "--"
+                "--socket"
+                :autoport)))
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -718,8 +713,13 @@ point reaches the beginning or end of the buffer, stop there."
    gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
-(use-package gptel-emacs-tools
-  :ensure (:host github :repo "jwiegley/gptel-emacs-tools"))
+;; (use-package gptel-emacs-tools
+;;   :ensure (:host github :repo "jwiegley/gptel-emacs-tools"))
+
+
+;; (use-package gptel-agent
+;;   :ensure (:host github :repo "karthink/gptel-agent")
+;;   :config (gptel-agent-update))         ; Read files from agents directories
 
 
 (use-package copilot
