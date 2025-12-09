@@ -29,7 +29,9 @@
         "sway/language",
         "battery",
         "battery#bat2",
-        "clock",
+        "clock#local",
+        "clock#utc",
+        "clock#london",
         "tray",
         "custom/power"
     ],
@@ -114,7 +116,24 @@
         "format": "{:%Y-%m-%d %H:%M:%S}",
         "interval": 1,
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%A, %B %d, %Y}"
+        "format-alt": "{:%A, %B %d, %Y}",
+        "timezones": ["", "UTC", "Europe/London"]
+    },
+    "clock#local": {
+        "format": "Local: {:%Y-%m-%d %H:%M:%S}",
+        "interval": 1,
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "{:%A, %B %d, %Y}",
+    },
+    "clock#utc": {
+        "format": "UTC: {:%H:%M:%S}",
+        "timezone": "UTC",
+        "interval": 1
+    },
+    "clock#london": {
+        "format": "LON: {:%H:%M:%S}",
+        "timezone": "Europe/London", 
+        "interval": 1
     },
     "cpu": {
         "format": "{usage}% ",
