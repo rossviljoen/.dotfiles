@@ -205,8 +205,8 @@
   :ensure nil
   :config
   (recentf-mode 1)
-  ; Periodically save recentf list (5 mins)
-  (run-at-time nil (* 5 60) 'recentf-save-list)) 
+  ; Periodically save recentf list (1 min)
+  (run-at-time nil (* 1 60) 'recentf-save-list))
 
 
 (use-package dired
@@ -461,12 +461,14 @@
 
 
 (use-package vterm
+  :bind ("C-c t" . vterm)
   :config
   (setq vterm-max-scrollback 100000)
   (setq vterm-tramp-shells '(("ssh" "/bin/bash") ("docker" "/bin/sh"))))
 
 
-(use-package multi-vterm)
+(use-package multi-vterm
+  :bind ("C-x p t" . multi-vterm-project))
 
 
 (use-package detached
