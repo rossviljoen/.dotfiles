@@ -32,6 +32,7 @@
         "clock#local",
         "clock#utc",
         "clock#london",
+        "clock#hongkong",
         "tray",
         "custom/power"
     ],
@@ -133,6 +134,11 @@
     "clock#london": {
         "format": "LON: {:%H:%M:%S}",
         "timezone": "Europe/London", 
+        "interval": 1
+    },
+    "clock#hongkong": {
+        "format": "HKG: {:%H:%M:%S}",
+        "timezone": "Asia/Hong_Kong",
         "interval": 1
     },
     "cpu": {
