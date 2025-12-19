@@ -1375,6 +1375,17 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Ideally:
 ;; - Emacs + Julia MCPs (look at clojure-mcp for inspiration)
 
+;; Find a free port
+;; (let* ((port-probe (make-network-process :name "port-probe"
+;;                                          :server t
+;;                                          :host "localhost"
+;;                                          :service 0))
+;;            (port-number (unwind-protect
+;;                             (process-contact port-probe :service)
+;;                           (delete-process port-probe))))
+;;   BODY...
+;; )
+
 ;; -----------------------------------------------------------------------------
 ;; Final Settings
 ;; -----------------------------------------------------------------------------
