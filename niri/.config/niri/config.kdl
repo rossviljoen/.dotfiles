@@ -111,6 +111,10 @@ output "Dell Inc. DELL U4320Q DZBWQ83" {
     position x=0 y=0
 }
 
+output "LG Display 0x06B3 Unknown" {
+    mode "1920x1200@59.950"
+}
+
 output "LG Electronics LG HDR 4K 0x0006E1A9" {
     mode "3840x2160@59.997"
     scale 1.5
