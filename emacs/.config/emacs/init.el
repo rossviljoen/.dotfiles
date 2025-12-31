@@ -408,6 +408,7 @@
 (use-package exec-path-from-shell
   :demand t
   :config
+  (push "SSH_AUTH_SOCK" exec-path-from-shell-variables)
   (exec-path-from-shell-initialize))
 
 
@@ -1333,6 +1334,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;; -----------------------------------------------------------------------------
 ;;; TODO
 ;; -----------------------------------------------------------------------------
+
+;; https://github.com/szermatt/mistty
 
 ;; dragstuff
 ;; better comment-lines that doesn't move cursor (save-excursion or smth?)

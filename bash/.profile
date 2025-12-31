@@ -81,17 +81,4 @@ export JULIA_PKG_DEVDIR=$CODE
 # . "$GUIX_PROFILE/etc/profile"
 
 
-# >>> juliaup initialize >>>
 
-# !! Contents within this block are managed by juliaup !!
-
-case ":$PATH:" in
-    *:/home/rviljoen/.juliaup/bin:*)
-        ;;
-
-    *)
-        
-        ;;
-esac
-
-# <<< juliaup initialize <<<
