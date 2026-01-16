@@ -712,7 +712,8 @@ point reaches the beginning or end of the buffer, stop there."
   :config
   (setq
    ;; gptel-model 'claude-3-7-sonnet-20250219
-   gptel-model 'claude-sonnet-4-20250514
+   ;; gptel-model 'claude-opus-4-5-20251101
+   gptel-model 'claude-sonnet-4-5-20250929
    gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
