@@ -728,7 +728,8 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package copilot
   :ensure (:host github :repo "copilot-emacs/copilot.el")
-  :hook (prog-mode . copilot-mode)
+  ;; :hook (prog-mode . copilot-mode)
+  :hook (julia-mode . copilot-mode)
   :bind (:map copilot-completion-map ("<tab>" . copilot-accept-completion))
   :config
   ;; (setq copilot-log-max 1000)

@@ -38,6 +38,7 @@ export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 # Other non-XDG home dirs
 export JULIA_DEPOT_PATH=$HOME/.julia
 export JULIAUP_DEPOT_PATH=$HOME/.juliaup
+export JULIA_PKG_PRECOMPILE_AUTO=0
 # export GOPATH=$DEV/go
 
 
