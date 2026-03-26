@@ -346,15 +346,17 @@
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider :completionProvider/snippetSupport))
   (setq eglot-stay-out-of '(yasnippet))
   (setq eglot-extend-to-xref t)
-  (let ((jetls (file-name-concat (getenv "CODE") "JETLS")))
-    (add-to-list 'eglot-server-programs
-              '(((julia-mode :language-id "julia")
-                (julia-ts-mode :language-id "julia"))
-                "jetls"
-                "--threads=auto"
-                "--"
-                "--socket"
-                :autoport)))
+  ;; (let ((jetls (file-name-concat (getenv "CODE") "JETLS")))
+  (add-to-list 'eglot-server-programs
+               '(((julia-mode :language-id "julia")
+                  (julia-ts-mode :language-id "julia"))
+                 "jetls"
+                 "--threads=auto"
+                 "--"
+                 "serve"
+                 "--socket"
+                 :autoport))
+  ;; )
   ;; :hook
   ;; (python-base-mode . eglot-ensure)
   ;; (julia-mode . eglot-ensure)
@@ -714,7 +716,9 @@ point reaches the beginning or end of the buffer, stop there."
    ;; gptel-model 'claude-3-7-sonnet-20250219
    ;; gptel-model 'claude-opus-4-5-20251101
    gptel-model 'claude-sonnet-4-5-20250929
-   gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
+   gptel-backend (gptel-make-anthropic "Claude" :stream t :key gptel-api-key))
+  (gptel-make-gh-copilot "Copilot")
+  )
 
 
 ;; (use-package gptel-emacs-tools
@@ -1114,6 +1118,23 @@ point reaches the beginning or end of the buffer, stop there."
 
 (use-package julia-mode)
 
+(defun ross/create-julia-notes (title)
+  "Create a new Julia file with format YYYYMMDD_title.jl in ~/notes/daily.
+Prompts for the TITLE portion of the filename."
+  (interactive "sEnter title: ")
+  (let* ((date-string (format-time-string "%Y%m%d"))
+         (sanitized-title (replace-regexp-in-string "[^a-zA-Z0-9_-]" "_" title))
+         (filename (format "%s_%s.jl" date-string sanitized-title))
+         (notes-dir (expand-file-name "notes/daily" (getenv "HOME")))
+         (filepath (expand-file-name filename notes-dir)))
+    ;; Create directory if it doesn't exist
+    (unless (file-exists-p notes-dir)
+      (make-directory notes-dir t))
+    (find-file filepath)
+    (when (not (file-exists-p filepath))
+      (save-buffer))
+    (message "Created file: %s" filepath)))
+
 ;; (use-package julia-ts-mode
 ;;   :ensure
 ;;   (:host github :repo "dhanak/julia-ts-mode" :branch "main"))
@@ -1127,7 +1148,8 @@ point reaches the beginning or end of the buffer, stop there."
   (setq julia-repl-executable-records
         '((default "julia")
           (1-11 "julia +1.11")
-          (1-12 "julia +1.12"))) ; compiled from the repository
+          (1-11-6 "julia +1.11.6")
+          (1-12 "julia +1.12")))
 
   ;; Function to dynamically set switches based on buffer-local variable
   (defun julia-repl-set-switches ()
