@@ -104,18 +104,18 @@ input {
     position x=1280 y=0
 }
 
-output "Dell Inc. DELL U4320Q DZBWQ83" {
+output "Dell Inc. DELL U4320Q B4CWQ83" {
     mode "3840x2160@59.997"
     scale 1.0
     transform "normal"
     position x=0 y=0
 }
 
-output "LG Display 0x06B3 Unknown" {
+/-output "LG Display 0x06B3 Unknown" {
     mode "1920x1200@59.950"
 }
 
-output "LG Electronics LG HDR 4K 0x0006E1A9" {
+output "LG Electronics LG HDR 4K 0x0006E1AB" {
     mode "3840x2160@59.997"
     scale 1.5
     transform "90"
